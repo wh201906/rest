@@ -14,15 +14,16 @@ class EventHandler : public QObject
 public:
     explicit EventHandler(QObject *parent = nullptr);
     ~EventHandler();
-    static void closeScreen();
+
+    static void closeScreen(); // using Windows API to open/close screen
     static void openScreen();
+
     enum timerState
     {
         STATE_IDLE,
         STATE_CTDN,
         STATE_REST,
     };
-
     void setCtdnTime(int time);
     void setRestTime(int time);
 
@@ -30,20 +31,22 @@ public slots:
     void setState(timerState st);
     void enableTimer(bool st);
 signals:
-    void scndChanged(timerState st, int currScnds);
-    void nearZeroAlert();
+    void scndChanged(timerState st, int currScnds);// to refresh the timer on MainWindow
+    void nearZeroAlert(); // to make MainWindow visible
 private slots:
     void nextSecond();
 private:
     QTimer* qTimer;
     timerState state=STATE_IDLE;
+
     int currScnds=0;
-//    int ctdnScnds=40*60;
-//    int restScnds=3*60;
-    int ctdnScnds=20;
-    int restScnds=10;
-    QPoint pos;
-    QRect range;
+    int ctdnScnds=40*60; // work for 40min
+    int restScnds=3*60; // rest for 3min
+//    int ctdnScnds=20;
+//    int restScnds=10;  // for debugging
+
+    QPoint pos; // last mouse position
+    QRect range; // maximum range for mouse to move(in case a slight move resets the timer)
 };
 
 #endif // EVENTHANDLER_H

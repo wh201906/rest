@@ -33,7 +33,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-VERSION = 0.0.1
+VERSION = 0.0.2
 QMAKE_TARGET_PRODUCT = "Rest"
 QMAKE_TARGET_DESCRIPTION = "Rest Remainder"
 QMAKE_TARGET_COMPANY = "wh201906"

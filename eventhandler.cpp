@@ -17,12 +17,12 @@ EventHandler::~EventHandler()
 
 void EventHandler::closeScreen()
 {
-    SendMessageA(HWND_BROADCAST,WM_SYSCOMMAND, SC_MONITORPOWER, 2);
+    PostMessageA(HWND_BROADCAST,WM_SYSCOMMAND, SC_MONITORPOWER, 2); //When using SendMessage, the application might crash
 }
 
 void EventHandler::openScreen()
 {
-    SendMessageA(HWND_BROADCAST,WM_SYSCOMMAND, SC_MONITORPOWER, -1);
+    PostMessageA(HWND_BROADCAST,WM_SYSCOMMAND, SC_MONITORPOWER, -1); //When using SendMessage, the application might crash
 }
 
 void EventHandler::nextSecond()
