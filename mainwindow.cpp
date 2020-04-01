@@ -15,7 +15,12 @@ MainWindow::MainWindow(QWidget *parent)
     showRect = this->geometry();
     for(QScreen* item : QApplication::screens())
         screenList.append(item->availableGeometry());
-    hideWindow();
+    hideWindow();// 启动后直接隐藏窗口
+
+    menu=new QMenu(this);
+    menu->addAction("Rest now",[=](){on_lockButton_clicked();});
+    menu->addAction("Pause",[=](){on_pauseButton_clicked(!(ui->pauseButton->isChecked()));});
+    menu->addAction("Exit",[=](){on_closeButton_clicked();});
 }
 
 MainWindow::~MainWindow()
@@ -28,7 +33,7 @@ void MainWindow::on_lockButton_clicked()
 {
     emit restNow();
     QThread::msleep(1000);
-    EventHandler::closeScreen();
+    MyTimer::closeScreen();
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *e)
@@ -59,7 +64,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
 
 
     QRect currScreen = QApplication::screenAt(e->globalPos())->availableGeometry();
-    qDebug() << "screen:" << currScreen;
+//    qDebug() << "screen:" << currScreen;
     if(edges[0] && edges[1] && edges[2] && edges[3]) //跨屏幕边缘情况
         isEdge = false;
     else if(!edges[0] && !edges[1])
@@ -87,7 +92,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
         this->move(currScreen.left() + currScreen.width() - showRect.width(), this->geometry().top());
     }
     showRect = this->geometry();
-    qDebug() << "target:" << showRect;
+//    qDebug() << "target:" << showRect;
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *e)
@@ -98,14 +103,12 @@ void MainWindow::mousePressEvent(QMouseEvent *e)
 
 void MainWindow::enterEvent(QEvent *e)
 {
-    if(isEdge)
-        showWindow();
+    showWindow();
 }
 
 void MainWindow::leaveEvent(QEvent *e)
 {
-    if(isEdge)
-        hideWindow();
+    hideWindow();
 }
 
 void MainWindow::on_closeButton_clicked()
@@ -115,19 +118,23 @@ void MainWindow::on_closeButton_clicked()
 
 void MainWindow::on_pauseButton_clicked(bool checked)
 {
+    ui->pauseButton->setChecked(checked);
     ui->lockButton->setEnabled(!checked);
     emit pause(!checked);
 }
 
 void MainWindow::showWindow()
 {
-    this->move(showRect.topLeft());
-    qDebug() << "show:" << this->geometry();
+    if(isEdge)
+    {
+        this->move(showRect.topLeft());
+//        qDebug() << "show:" << this->geometry();
+    }
 }
 
 void MainWindow::hideWindow()
 {
-    if(!nearZero)
+    if(!nearZero && isEdge)
     {
         if(edgeSide == SIDE_UP)
             this->move(showRect.x(), -showRect.height() + EDGESIZE);
@@ -137,13 +144,13 @@ void MainWindow::hideWindow()
             this->move(-showRect.width() + EDGESIZE, showRect.y());
         else if(edgeSide == SIDE_RIGHT)
             this->move(showRect.left() + showRect.width() - EDGESIZE, showRect.y());
-        qDebug() << "hide:" << this->geometry();
+//        qDebug() << "hide:" << this->geometry();
     }
 }
 
-void MainWindow::nextSecond(EventHandler::timerState st, int currScnds)
+void MainWindow::nextSecond(MyTimer::timerState st, int currScnds)
 {
-    if(st == EventHandler::STATE_CTDN)
+    if(st == MyTimer::STATE_CTDN)
     {
         nearZero = currScnds <= 30;
         ui->ctdnLabel->setText(QString("%1 %2:%3:%4")
@@ -162,3 +169,9 @@ void MainWindow::nextSecond(EventHandler::timerState st, int currScnds)
     }
 }
 
+void MainWindow::contextMenuEvent(QContextMenuEvent *event)
+{
+    qDebug()<<"triggered";
+    menu->exec(event->globalPos());
+
+}

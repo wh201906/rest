@@ -1,52 +1,55 @@
-﻿#include "eventhandler.h"
+﻿#include "mytimer.h"
 
-EventHandler::EventHandler(QObject *parent) : QObject(parent)
+MyTimer::MyTimer(QObject *parent) : QTimer(parent)
 {
-    qTimer=new QTimer(this);
-    qTimer->setTimerType(Qt::CoarseTimer);
-    qTimer->setInterval(1000);
-    connect(qTimer,&QTimer::timeout,this,&EventHandler::nextSecond);
-    state=STATE_IDLE;
-    range.setRect(-3,-3,6,6);
+    this->setTimerType(Qt::CoarseTimer);
+    this->setInterval(1000);
+    connect(this, &MyTimer::timeout, this, &MyTimer::nextSecond);
+    state = STATE_IDLE;
+    range.setRect(-3, -3, 6, 6);
 }
 
-EventHandler::~EventHandler()
+MyTimer::~MyTimer()
 {
-    delete qTimer;
 }
 
-void EventHandler::closeScreen()
+void MyTimer::closeScreen()
 {
-    PostMessageA(HWND_BROADCAST,WM_SYSCOMMAND, SC_MONITORPOWER, 2); //When using SendMessage, the application might crash
+    PostMessageA(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, 2); //When using SendMessage, the application might crash
 }
 
-void EventHandler::openScreen()
+void MyTimer::openScreen()
 {
-    PostMessageA(HWND_BROADCAST,WM_SYSCOMMAND, SC_MONITORPOWER, -1); //When using SendMessage, the application might crash
+    PostMessageA(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, -1); //When using SendMessage, the application might crash
 }
 
-void EventHandler::nextSecond()
+void MyTimer::nextSecond()
 {
-    if(state==STATE_CTDN)
+//    qDebug()<<"in:"<<currScnds;
+    if(state == STATE_CTDN)
     {
         currScnds--;
-        if(currScnds<=0)
+        if(currScnds <= 0)
             setState(STATE_REST);
-        else if(currScnds==30)
+        else if(currScnds == 30)
             emit nearZeroAlert();
+        else if(currScnds == ctdnScnds - 1)
+            emit newRound();
     }
-    else if(state==STATE_REST)
+    else if(state == STATE_REST)
     {
-        QPoint move=QCursor().pos()-pos;
-        if(currScnds>0)
+        QPoint move = QCursor().pos() - pos;
+        if(currScnds > 0)
         {
             currScnds--;
-            closeScreen();
+            sigInterval = (sigInterval + 1) % MAXSIGINTERVAL;
+            if(sigInterval == 0)
+                closeScreen();
             if(!range.contains(move))
             {
-                currScnds=restScnds;
+                currScnds = restScnds;
             }
-            pos=QCursor().pos();
+            pos = QCursor().pos();
         }
         else
         {
@@ -55,40 +58,42 @@ void EventHandler::nextSecond()
                 setState(STATE_CTDN);
         }
     }
-    emit scndChanged(state,currScnds);
+//    qDebug()<<"out:"<<currScnds;
+    emit scndChanged(state, currScnds);
 }
 
 
 
-void EventHandler::setCtdnTime(int time)
+void MyTimer::setCtdnTime(int time)
 {
-    ctdnScnds=time;
+    ctdnScnds = time;
 }
 
-void EventHandler::setRestTime(int time)
+void MyTimer::setRestTime(int time)
 {
-    restScnds=time;
+    restScnds = time;
 }
 
-void EventHandler::setState(timerState st)
+void MyTimer::setState(timerState st)
 {
-    state=st;
-    if(state==STATE_IDLE)
-        qTimer->stop();
+    state = st;
+    if(state == STATE_IDLE)
+        this->stop();
     else
     {
-        if(state==STATE_CTDN)
-            currScnds=ctdnScnds;
+        sigInterval=0;
+        if(state == STATE_CTDN)
+            currScnds = ctdnScnds;
         else
-            currScnds=restScnds;
-        qTimer->start();
+            currScnds = restScnds;
+        this->start();
     }
 }
 
-void EventHandler::enableTimer(bool st)
+void MyTimer::enableTimer(bool st)
 {
     if(st)
-        qTimer->start();
+        this->start();
     else
-        qTimer->stop();
+        this->stop();
 }

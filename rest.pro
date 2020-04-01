@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,14 +16,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    eventhandler.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    mytimer.cpp \
+    singleinstance.cpp
 
 HEADERS += \
-    eventhandler.h \
-    eventhandler.h \
-    mainwindow.h
+    mainwindow.h \
+    mytimer.h \
+    singleinstance.h
 
 FORMS += \
     mainwindow.ui
@@ -33,7 +34,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-VERSION = 0.0.2
+VERSION = 0.0.3
 QMAKE_TARGET_PRODUCT = "Rest"
 QMAKE_TARGET_DESCRIPTION = "Rest Remainder"
 QMAKE_TARGET_COMPANY = "wh201906"

@@ -1,6 +1,8 @@
-#include "singleinstance.h"
+﻿#include "singleinstance.h"
 
-SingleInstance::SingleInstance(QObject *parent) : QObject(parent)
+SingleInstance::SingleInstance(const QString &token)
 {
-
+    timer=new QTimer();
+    timer->setInterval(1000);
+    timer->setTimerType(Qt::VeryCoarseTimer);
 }

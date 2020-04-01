@@ -16,6 +16,9 @@
   <property name="mouseTracking">
    <bool>true</bool>
   </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::DefaultContextMenu</enum>
+  </property>
   <property name="acceptDrops">
    <bool>true</bool>
   </property>
@@ -28,6 +31,9 @@
   <widget class="QWidget" name="centralwidget">
    <property name="mouseTracking">
     <bool>true</bool>
+   </property>
+   <property name="contextMenuPolicy">
+    <enum>Qt::DefaultContextMenu</enum>
    </property>
    <property name="acceptDrops">
     <bool>true</bool>
@@ -47,6 +53,9 @@
       <weight>75</weight>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::PreventContextMenu</enum>
     </property>
     <property name="text">
      <string>R</string>
@@ -70,6 +79,9 @@
     </property>
     <property name="mouseTracking">
      <bool>true</bool>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
     </property>
     <property name="text">
      <string>TextLabel</string>
@@ -95,7 +107,7 @@
      <bool>false</bool>
     </property>
     <property name="contextMenuPolicy">
-     <enum>Qt::NoContextMenu</enum>
+     <enum>Qt::PreventContextMenu</enum>
     </property>
     <property name="text">
      <string>×</string>
@@ -121,7 +133,7 @@
      <bool>false</bool>
     </property>
     <property name="contextMenuPolicy">
-     <enum>Qt::NoContextMenu</enum>
+     <enum>Qt::PreventContextMenu</enum>
     </property>
     <property name="text">
      <string>| |</string>
@@ -153,6 +165,9 @@
     </property>
     <property name="mouseTracking">
      <bool>true</bool>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
     </property>
     <property name="styleSheet">
      <string notr="true">border: 1px solid #000000; border-radius: 7px;background:#40ffffff</string>

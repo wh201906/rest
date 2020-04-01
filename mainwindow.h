@@ -1,12 +1,13 @@
 ﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "eventhandler.h"
+#include "mytimer.h"
 
 #include <QMainWindow>
 #include <QMouseEvent>
 #include <QTimer>
 #include <QThread>
+#include <QMenu>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,7 +24,7 @@ public:
     ~MainWindow();
 
 public slots:
-    void nextSecond(EventHandler::timerState st, int currScnds);
+    void nextSecond(MyTimer::timerState st, int currScnds);
     void showWindow();
     void hideWindow();
 private slots:
@@ -38,8 +39,10 @@ private slots:
 
     void on_pauseButton_clicked(bool checked);
 
+    void contextMenuEvent(QContextMenuEvent *event);
 private:
     Ui::MainWindow *ui;
+    QMenu *menu;
 
     QPoint startPos;
     QRect showRect;
@@ -59,7 +62,7 @@ private:
     QList<QRect> screenList;
 
 signals:
-    void restNow(EventHandler::timerState st=EventHandler::STATE_REST);
+    void restNow(MyTimer::timerState st=MyTimer::STATE_REST);
     void pause(bool st);
 };
 #endif // MAINWINDOW_H
