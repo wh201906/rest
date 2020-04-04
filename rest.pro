@@ -36,7 +36,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 VERSION = 0.0.3
 QMAKE_TARGET_PRODUCT = "Rest"
-QMAKE_TARGET_DESCRIPTION = "Rest Remainder"
+QMAKE_TARGET_DESCRIPTION = "Rest Reminder"
 QMAKE_TARGET_COMPANY = "wh201906"
 
 #RC_FILE = rest_resource.rc

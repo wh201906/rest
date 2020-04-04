@@ -1,5 +1,5 @@
 # rest
-An app designed to have a rest and protect eyesight when working.  
+An app designed to remind you of rest and protect your eyesight when working.  
 Developed by Qt. Now available on Windows.
 
 ***
