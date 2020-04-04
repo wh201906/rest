@@ -5,62 +5,62 @@
 
 SingleInstance::SingleInstance(const QString &token, QObject *parent): QSharedMemory(token, parent)
 {
-    state = IDLE;
+    state = NOT_READY;
     runningState = UNKNOWN;
     val = 0;
     timer = new QTimer(this);
-    timer->setInterval(1000);
     timer->setTimerType(Qt::VeryCoarseTimer);
     connect(timer, &QTimer::timeout, this, &SingleInstance::nextSecond);
-    this->attach();
+}
+
+void SingleInstance::init()
+{
+    qDebug()<<this->attach();
+    qDebug()<<this->error();
     if(this->error() == SingleInstance::NoError)
     {
-        state = READ;
+
         val = *valPtr;
+//        qDebug()<<"start waiting..."<<QTime::currentTime();
+        QThread::msleep(1.5*interval);
+//        qDebug()<<"stop waiting..."<<QTime::currentTime();
+        if(*valPtr!=val)
+        {
+            runningState=RUNNING;
+        }
+        else
+        {
+            runningState=NOT_RUNNING;
+        }
+        state = INITIALIZED;
+
     }
-    else if(this->error() == QSharedMemory::NotFound)
+    else if(runningState==NOT_RUNNING || this->error() == QSharedMemory::NotFound)
     {
         if(this->create(9))
         {
             runningState = NOT_RUNNING;
-            state = WRITE;
+            state = INITIALIZED;
             *valPtr = val;
             *newInsPtr = 0;
-        }
-        else
-        {
-            state = UNKNOWN_ERROR;
+            timer->setInterval(interval);
+            timer->start();
         }
     }
-    else
-    {
+    if(state == NOT_READY)
         state = UNKNOWN_ERROR;
-    }
-    if(state != UNKNOWN_ERROR)
-        timer->start();
 }
 
 void SingleInstance::nextSecond()
 {
-    if(state == READ)
+    val = (val + 1) % 10;
+    *valPtr = val;
+    if(*newInsPtr == 1)
     {
-        if(*valPtr != val)
-        {
-            runningState = RUNNING;
-            timer->stop();
-            *newInsPtr = 1;
-        }
+        *newInsPtr = 0;
+        emit newInstance();
     }
-    else if(state == WRITE)
-    {
-        val = (val + 1) % 10;
-        *valPtr = val;
-        if(*newInsPtr == 1)
-        {
-            *newInsPtr = 0;
-            emit newInstance();
-        }
-    }
+    qDebug()<<*valPtr<<","<<*newInsPtr;
 }
 
 SingleInstance::State SingleInstance::getState()
@@ -71,4 +71,8 @@ SingleInstance::State SingleInstance::getState()
 SingleInstance::RunningState SingleInstance::getRunningState()
 {
     return runningState;
+}
+void SingleInstance::sendMessage()
+{
+    *newInsPtr=1;
 }

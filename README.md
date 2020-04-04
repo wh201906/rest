@@ -7,6 +7,7 @@ Developed by Qt. Now available on Windows.
 Update Log:
 
 ## V0.0.3
++ Add single instance support(experimental)
 + Refactor the code  
 (Replace EventHandler with MyTimer, which is a customized subclass of QTimer)
 + Add signal interval  
