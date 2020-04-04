@@ -10,15 +10,15 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     // MyApplication a(argc, argv);
     MainWindow w;
-    MyTimer hdlr(&a);
+    MyTimer mytimer(&a);
     w.setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     w.setAttribute(Qt::WA_TranslucentBackground);
     w.show();
-    hdlr.connect(&hdlr, &MyTimer::scndChanged, &w, &MainWindow::nextSecond);
-    hdlr.connect(&hdlr, &MyTimer::nearZeroAlert, &w, &MainWindow::showWindow);
-    hdlr.connect(&hdlr, &MyTimer::newRound, &w, &MainWindow::hideWindow);
-    hdlr.connect(&w, &MainWindow::restNow, &hdlr, &MyTimer::setState);
-    hdlr.connect(&w, &MainWindow::pause, &hdlr, &MyTimer::enableTimer);
-    hdlr.setState(MyTimer::STATE_CTDN);
+    mytimer.connect(&mytimer, &MyTimer::scndChanged, &w, &MainWindow::nextSecond);
+    mytimer.connect(&mytimer, &MyTimer::nearZeroAlert, &w, &MainWindow::showWindow);
+    mytimer.connect(&mytimer, &MyTimer::newRound, &w, &MainWindow::hideWindow);
+    mytimer.connect(&w, &MainWindow::restNow, &mytimer, &MyTimer::setState);
+    mytimer.connect(&w, &MainWindow::pause, &mytimer, &MyTimer::enableTimer);
+    mytimer.setState(MyTimer::STATE_CTDN);
     return a.exec();
 }
