@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     menu=new QMenu(this);
     menu->addAction("Rest now",[=](){on_lockButton_clicked();});
     menu->addAction("Pause",[=](){on_pauseButton_clicked(!(ui->pauseButton->isChecked()));});
+    menu->addAction("Settings",[=](){enterSettings();});
     menu->addAction("Exit",[=](){on_closeButton_clicked();});
 }
 
@@ -173,5 +174,16 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
     qDebug()<<"triggered";
     menu->exec(event->globalPos());
+
+}
+
+void MainWindow::enterSettings()
+{
+    SettingDialog* settingDialog=new SettingDialog(this);
+    connect(settingDialog,SettingDialog::settingChanged,this,MainWindow::onSettingChanged);
+    settingDialog->show();
+}
+void MainWindow::onSettingChanged(bool isSpl,int Wh,int Wm,int Ws,int Rh, int Rm,int Rs)
+{
 
 }
