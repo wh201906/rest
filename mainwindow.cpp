@@ -195,5 +195,31 @@ void MainWindow::enterSettings()
 }
 void MainWindow::onSettingChanged(bool isSpl,int Wh,int Wm,int Ws,int Rh, int Rm,int Rs)
 {
-
+    QRect targetGeometry;
+    if(isSpl)
+    {
+        ui->lockButton->setVisible(false);
+        ui->pauseButton->setVisible(false);
+        ui->closeButton->setVisible(false);
+        targetGeometry=this->geometry();
+        targetGeometry.setWidth(80);
+        this->setGeometry(targetGeometry);
+        targetGeometry=ui->centralwidget->geometry();
+        targetGeometry.setWidth(80);
+        ui->centralwidget->setGeometry(targetGeometry);
+        ui->widget->setGeometry(targetGeometry);
+    }
+    else
+    {
+        ui->lockButton->setVisible(true);
+        ui->pauseButton->setVisible(true);
+        ui->closeButton->setVisible(true);
+        targetGeometry=this->geometry();
+        targetGeometry.setWidth(160);
+        this->setGeometry(targetGeometry);
+        targetGeometry=ui->centralwidget->geometry();
+        targetGeometry.setWidth(160);
+        ui->centralwidget->setGeometry(targetGeometry);
+        ui->widget->setGeometry(targetGeometry);
+    }
 }

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>180</width>
+    <width>160</width>
     <height>30</height>
    </rect>
   </property>
@@ -38,128 +38,12 @@
    <property name="acceptDrops">
     <bool>true</bool>
    </property>
-   <widget class="QPushButton" name="lockButton">
-    <property name="geometry">
-     <rect>
-      <x>105</x>
-      <y>5</y>
-      <width>20</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::PreventContextMenu</enum>
-    </property>
-    <property name="text">
-     <string>R</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="ctdnLabel">
-    <property name="geometry">
-     <rect>
-      <x>5</x>
-      <y>5</y>
-      <width>95</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="mouseTracking">
-     <bool>true</bool>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::DefaultContextMenu</enum>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="closeButton">
-    <property name="geometry">
-     <rect>
-      <x>155</x>
-      <y>5</y>
-      <width>20</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="mouseTracking">
-     <bool>false</bool>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::PreventContextMenu</enum>
-    </property>
-    <property name="text">
-     <string>×</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pauseButton">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>5</y>
-      <width>20</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="mouseTracking">
-     <bool>false</bool>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::PreventContextMenu</enum>
-    </property>
-    <property name="text">
-     <string>| |</string>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <property name="checked">
-     <bool>false</bool>
-    </property>
-    <property name="autoDefault">
-     <bool>false</bool>
-    </property>
-    <property name="default">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
-    </property>
-   </widget>
    <widget class="QWidget" name="widget" native="true">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>180</width>
+      <width>160</width>
       <height>30</height>
      </rect>
     </property>
@@ -170,14 +54,176 @@
      <enum>Qt::DefaultContextMenu</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true">border: 1px solid #000000; border-radius: 7px;background:#40ffffff</string>
+     <string notr="true">#widget{
+border: 1px solid #000000; border-radius: 7px;background:#40ffffff}</string>
     </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>5</number>
+     </property>
+     <property name="leftMargin">
+      <number>5</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>5</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="ctdnLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::DefaultContextMenu</enum>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="lockButton">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::PreventContextMenu</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>R</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pauseButton">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::PreventContextMenu</enum>
+       </property>
+       <property name="text">
+        <string>| |</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="mouseTracking">
+        <bool>false</bool>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::PreventContextMenu</enum>
+       </property>
+       <property name="text">
+        <string>×</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
-   <zorder>widget</zorder>
-   <zorder>lockButton</zorder>
-   <zorder>ctdnLabel</zorder>
-   <zorder>closeButton</zorder>
-   <zorder>pauseButton</zorder>
   </widget>
  </widget>
  <resources/>
