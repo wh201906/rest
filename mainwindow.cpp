@@ -17,6 +17,16 @@ MainWindow::MainWindow(QWidget *parent)
         screenList.append(item->availableGeometry());
     hideWindow();// 启动后直接隐藏窗口
 
+    mytimer=new MyTimer(this);
+
+    connect(mytimer, &MyTimer::scndChanged, this, &MainWindow::nextSecond);
+    connect(mytimer, &MyTimer::nearZeroAlert, this, &MainWindow::showWindow);
+    connect(mytimer, &MyTimer::newRound, this, &MainWindow::hideWindow);
+    connect(this, &MainWindow::restNow, mytimer, &MyTimer::setState);
+    connect(this, &MainWindow::pause, mytimer, &MyTimer::enableTimer);
+
+    mytimer->setState(MyTimer::STATE_CTDN);
+
     menu=new QMenu(this);
     menu->addAction("Rest now",[=](){on_lockButton_clicked();});
     menu->addAction("Pause",[=](){on_pauseButton_clicked(!(ui->pauseButton->isChecked()));});

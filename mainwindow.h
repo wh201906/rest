@@ -9,6 +9,7 @@
 #include <QThread>
 #include <QMenu>
 #include "settingdialog.h"
+#include "mytimer.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -45,6 +46,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QMenu *menu;
+    MyTimer* mytimer;
 
     QPoint startPos;
     QRect showRect;
