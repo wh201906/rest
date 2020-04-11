@@ -17,15 +17,15 @@ MainWindow::MainWindow(QWidget *parent)
         screenList.append(item->availableGeometry());
     hideWindow();// 启动后直接隐藏窗口
 
-    mytimer=new MyTimer(this);
+    myTimer=new MyTimer(this);
 
-    connect(mytimer, &MyTimer::scndChanged, this, &MainWindow::nextSecond);
-    connect(mytimer, &MyTimer::nearZeroAlert, this, &MainWindow::showWindow);
-    connect(mytimer, &MyTimer::newRound, this, &MainWindow::hideWindow);
-    connect(this, &MainWindow::restNow, mytimer, &MyTimer::setState);
-    connect(this, &MainWindow::pause, mytimer, &MyTimer::enableTimer);
+    connect(myTimer, &MyTimer::scndChanged, this, &MainWindow::nextSecond);
+    connect(myTimer, &MyTimer::nearZeroAlert, this, &MainWindow::showWindow);
+    connect(myTimer, &MyTimer::newRound, this, &MainWindow::hideWindow);
+    connect(this, &MainWindow::restNow, myTimer, &MyTimer::setState);
+    connect(this, &MainWindow::pause, myTimer, &MyTimer::enableTimer);
 
-    mytimer->setState(MyTimer::STATE_CTDN);
+    myTimer->setState(MyTimer::STATE_CTDN);
 
     menu=new QMenu(this);
     menu->addAction("Rest now",[=](){on_lockButton_clicked();});
@@ -222,4 +222,7 @@ void MainWindow::onSettingChanged(bool isSpl,int Wh,int Wm,int Ws,int Rh, int Rm
         ui->centralwidget->setGeometry(targetGeometry);
         ui->widget->setGeometry(targetGeometry);
     }
+    myTimer->setCtdnTime(Wh*3600+Wm*60+Ws);
+    myTimer->setRestTime(Rh*3600+Rm*60+Rs);
+
 }

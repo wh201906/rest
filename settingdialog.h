@@ -2,6 +2,10 @@
 #define SETTINGDIALOG_H
 
 #include <QDialog>
+#include <QMessageBox>
+#include <QList>
+#include <QLineEdit>
+#include <QIntValidator>
 
 namespace Ui {
 class SettingDialog;
@@ -16,11 +20,13 @@ public:
     ~SettingDialog();
 
 
-private slots:
-    void on_buttonBox_accepted();
+public slots:
+    void accept();
 
 private:
     Ui::SettingDialog *ui;
+    QList<QLineEdit*>* editList;
+    QIntValidator* validator;
 
 signals:
     void settingChanged(bool isSpl,int Wh,int Wm,int Ws,int Rh, int Rm,int Rs);

@@ -46,7 +46,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QMenu *menu;
-    MyTimer* mytimer;
+    MyTimer* myTimer;
 
     QPoint startPos;
     QRect showRect;

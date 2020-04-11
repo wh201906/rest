@@ -6,6 +6,21 @@ SettingDialog::SettingDialog(QWidget *parent) :
     ui(new Ui::SettingDialog)
 {
     ui->setupUi(this);
+
+    validator=new QIntValidator(0,59,this){
+
+};
+    editList=new QList<QLineEdit*>();
+
+    editList->append(ui->WhEdit);
+    editList->append(ui->WmEdit);
+    editList->append(ui->WsEdit);
+    editList->append(ui->RhEdit);
+    editList->append(ui->RmEdit);
+    editList->append(ui->RsEdit);
+    for(int i=0;i<editList->size();i++)
+        (*editList)[i]->setValidator(validator);
+
 }
 
 SettingDialog::~SettingDialog()
@@ -13,7 +28,9 @@ SettingDialog::~SettingDialog()
     delete ui;
 }
 
-void SettingDialog::on_buttonBox_accepted()
+
+
+void SettingDialog::accept()
 {
     emit settingChanged(ui->simpleModeBox->isChecked(),
                         ui->WhEdit->text().toInt(),
@@ -22,4 +39,5 @@ void SettingDialog::on_buttonBox_accepted()
                         ui->RhEdit->text().toInt(),
                         ui->RmEdit->text().toInt(),
                         ui->RsEdit->text().toInt());
+    QDialog::accept();
 }
