@@ -18,16 +18,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    mysettings.cpp \
     mytimer.cpp \
+    settingdialog.cpp \
     singleinstance.cpp
 
 HEADERS += \
     mainwindow.h \
+    mysettings.h \
     mytimer.h \
+    settingdialog.h \
     singleinstance.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    settingdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

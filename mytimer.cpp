@@ -42,9 +42,9 @@ void MyTimer::nextSecond()
         if(currScnds > 0)
         {
             currScnds--;
-            sigInterval = (sigInterval + 1) % MAXSIGINTERVAL;
             if(sigInterval == 0)
                 closeScreen();
+            sigInterval = (sigInterval + 1) % MAXSIGINTERVAL;
             if(!range.contains(move))
             {
                 currScnds = restScnds;

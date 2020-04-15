@@ -8,6 +8,9 @@
 #include <QTimer>
 #include <QThread>
 #include <QMenu>
+#include "settingdialog.h"
+#include "mytimer.h"
+#include "mysettings.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -22,11 +25,13 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    MySettings* settings;
 
 public slots:
     void nextSecond(MyTimer::timerState st, int currScnds);
     void showWindow();
     void hideWindow();
+    void onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, int Rm, int Rs);
 private slots:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
@@ -38,11 +43,12 @@ private slots:
     void on_closeButton_clicked();
 
     void on_pauseButton_clicked(bool checked);
-
+    void enterSettings();
     void contextMenuEvent(QContextMenuEvent *event);
 private:
     Ui::MainWindow *ui;
     QMenu *menu;
+    MyTimer* myTimer;
 
     QPoint startPos;
     QRect showRect;
