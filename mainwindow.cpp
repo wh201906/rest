@@ -11,6 +11,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    settings=new MySettings("rest_settings.ini",MySettings::IniFormat,this);
+
     this->move((QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2, 0);
     showRect = this->geometry();
     for(QScreen* item : QApplication::screens())
@@ -18,12 +21,18 @@ MainWindow::MainWindow(QWidget *parent)
     hideWindow();// 启动后直接隐藏窗口
 
     myTimer=new MyTimer(this);
-
     connect(myTimer, &MyTimer::scndChanged, this, &MainWindow::nextSecond);
     connect(myTimer, &MyTimer::nearZeroAlert, this, &MainWindow::showWindow);
     connect(myTimer, &MyTimer::newRound, this, &MainWindow::hideWindow);
     connect(this, &MainWindow::restNow, myTimer, &MyTimer::setState);
     connect(this, &MainWindow::pause, myTimer, &MyTimer::enableTimer);
+    onSettingChanged(settings->value("isSpl").toBool(),
+                     settings->value("Wh").toInt(),
+                     settings->value("Wm").toInt(),
+                     settings->value("Ws").toInt(),
+                     settings->value("Rh").toInt(),
+                     settings->value("Rm").toInt(),
+                     settings->value("Rs").toInt());
 
     myTimer->setState(MyTimer::STATE_CTDN);
 
@@ -32,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     menu->addAction("Pause",[=](){on_pauseButton_clicked(!(ui->pauseButton->isChecked()));});
     menu->addAction("Settings",[=](){enterSettings();});
     menu->addAction("Exit",[=](){on_closeButton_clicked();});
+
 }
 
 MainWindow::~MainWindow()
@@ -189,7 +199,7 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 void MainWindow::enterSettings()
 {
-    SettingDialog* settingDialog=new SettingDialog(this);
+    SettingDialog* settingDialog=new SettingDialog(settings,this);
     connect(settingDialog,SettingDialog::settingChanged,this,MainWindow::onSettingChanged);
     settingDialog->show();
 }

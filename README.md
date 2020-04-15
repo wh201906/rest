@@ -4,7 +4,13 @@ Developed by Qt. Now available on Windows.
 
 ***
 
-Update Log:
+## Update Log:
+
+## V0.1
++ Add Settings  
+(support customized rest time and work time)
++ Add Simple Mode  
+(take less area on the screen)
 
 ## V0.0.3
 + Add single instance support(experimental)

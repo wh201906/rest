@@ -10,6 +10,7 @@
 #include <QMenu>
 #include "settingdialog.h"
 #include "mytimer.h"
+#include "mysettings.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -24,6 +25,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    MySettings* settings;
 
 public slots:
     void nextSecond(MyTimer::timerState st, int currScnds);
