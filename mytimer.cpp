@@ -48,6 +48,7 @@ void MyTimer::nextSecond()
             if(!range.contains(move))
             {
                 currScnds = restScnds;
+                closeScreen();
             }
             pos = QCursor().pos();
         }
