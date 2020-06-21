@@ -11,14 +11,14 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    this->setAttribute(Qt::WA_TranslucentBackground);
+    showRect.setHeight(30);
 
     settings = new MySettings("rest_settings.ini", MySettings::IniFormat, this);
 
-    this->move((QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2, 0);
-    showRect = this->geometry();
     for(QScreen* item : QApplication::screens())
         screenList.append(item->availableGeometry());
-    hideWindow();// 启动后直接隐藏窗口
 
     myTimer = new MyTimer(this);
     connect(myTimer, &MyTimer::scndChanged, this, &MainWindow::nextSecond);
@@ -54,6 +54,10 @@ MainWindow::MainWindow(QWidget *parent)
         on_closeButton_clicked();
     });
 
+    this->move((QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2, 0);
+    hideWindow();// 启动后直接隐藏窗口
+
+    update();
 }
 
 MainWindow::~MainWindow()
@@ -74,7 +78,8 @@ void MainWindow::mouseMoveEvent(QMouseEvent *e)
 //    qDebug() << "move:" << e->pos() - startPos;
     if(isMoving)
     {
-        this->setGeometry(QRect(this->geometry().topLeft() + (e->pos() - startPos), QSize(180, 30)));
+        this->setGeometry(QRect(this->geometry().topLeft() + (e->pos() - startPos), showRect.size()));
+        ui->centralwidget->resize(showRect.size());
     }
 }
 
@@ -124,7 +129,8 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
         isEdge = true;
         this->move(currScreen.left() + currScreen.width() - showRect.width(), this->geometry().top());
     }
-    showRect = this->geometry();
+//    showRect = this->geometry();
+    ui->centralwidget->resize(showRect.size());
 //    qDebug() << "target:" << showRect;
 }
 
@@ -214,46 +220,49 @@ void MainWindow::enterSettings()
     SettingDialog* settingDialog = new SettingDialog(settings, this);
     connect(settingDialog, &SettingDialog::settingChanged, this, &MainWindow::onSettingChanged);
     settingDialog->show();
+//    settingDialog->exec();
 }
 void MainWindow::onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, int Rm, int Rs)
 {
-    QRect targetGeometry;
+    qDebug() << ui->ctdnLabel->width() << ui->lockButton->width() << ui->pauseButton->width() << ui->closeButton->width();
+    qDebug() << this->width() << ui->centralwidget->width();
     if(isSpl)
     {
         ui->lockButton->setVisible(false);
         ui->pauseButton->setVisible(false);
         ui->closeButton->setVisible(false);
-        targetGeometry = this->geometry();
-        targetGeometry.setWidth(80);
-        this->setGeometry(targetGeometry);
-        targetGeometry = ui->centralwidget->geometry();
-        targetGeometry.setWidth(80);
-        ui->centralwidget->setGeometry(targetGeometry);
-        ui->widget->setGeometry(targetGeometry);
+        showRect.setWidth(5 * 2 + ui->ctdnLabel->width());
     }
     else
     {
         ui->lockButton->setVisible(true);
         ui->pauseButton->setVisible(true);
         ui->closeButton->setVisible(true);
-        targetGeometry = this->geometry();
-        targetGeometry.setWidth(160);
-        this->setGeometry(targetGeometry);
-        targetGeometry = ui->centralwidget->geometry();
-        targetGeometry.setWidth(160);
-        ui->centralwidget->setGeometry(targetGeometry);
-        ui->widget->setGeometry(targetGeometry);
+        showRect.setWidth(5 * 5 + ui->ctdnLabel->width() + ui->lockButton->width() + ui->pauseButton->width() + ui->closeButton->width());
     }
+    qDebug() << this->width() << ui->centralwidget->width();
     myTimer->setCtdnTime(Wh * 3600 + Wm * 60 + Ws);
     myTimer->setRestTime(Rh * 3600 + Rm * 60 + Rs);
-
+    ui->centralwidget->resize(showRect.size());
+    this->resize(showRect.size());
+    this->repaint();
+    // It seems that the the size of MainWindow will not update now.
 }
 
 bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
 {
-    MSG* winMsg = static_cast<MSG *>(message);
-    HWND hWnd = winMsg->hwnd;
-    if(winMsg->message != WM_SETCURSOR && winMsg->message != WM_NCHITTEST && winMsg->message != WM_MOUSEMOVE)
-        qDebug() << winMsg->message << winMsg->lParam << winMsg->wParam;
+//    MSG* winMsg = static_cast<MSG *>(message);
+//    HWND hWnd = winMsg->hwnd;
+//    if(winMsg->message != WM_SETCURSOR && winMsg->message != WM_NCHITTEST && winMsg->message != WM_MOUSEMOVE)
+//        qDebug() << winMsg->message << winMsg->lParam << winMsg->wParam;
     return false;
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    qDebug() << event << event->oldSize() << event->size() << event->type();
+}
+void MainWindow::moveEvent(QMoveEvent *event)
+{
+    qDebug() << event << event->oldPos() << event->pos() << event->type();
 }
