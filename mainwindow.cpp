@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    settings=new MySettings("rest_settings.ini",MySettings::IniFormat,this);
+    settings = new MySettings("rest_settings.ini", MySettings::IniFormat, this);
 
     this->move((QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2, 0);
     showRect = this->geometry();
@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
         screenList.append(item->availableGeometry());
     hideWindow();// 启动后直接隐藏窗口
 
-    myTimer=new MyTimer(this);
+    myTimer = new MyTimer(this);
     connect(myTimer, &MyTimer::scndChanged, this, &MainWindow::nextSecond);
     connect(myTimer, &MyTimer::nearZeroAlert, this, &MainWindow::showWindow);
     connect(myTimer, &MyTimer::newRound, this, &MainWindow::hideWindow);
@@ -36,11 +36,23 @@ MainWindow::MainWindow(QWidget *parent)
 
     myTimer->setState(MyTimer::STATE_CTDN);
 
-    menu=new QMenu(this);
-    menu->addAction("Rest now",[=](){on_lockButton_clicked();});
-    menu->addAction("Pause",[=](){on_pauseButton_clicked(!(ui->pauseButton->isChecked()));});
-    menu->addAction("Settings",[=](){enterSettings();});
-    menu->addAction("Exit",[=](){on_closeButton_clicked();});
+    menu = new QMenu(this);
+    menu->addAction("Rest now", [ = ]()
+    {
+        on_lockButton_clicked();
+    });
+    menu->addAction("Pause", [ = ]()
+    {
+        on_pauseButton_clicked(!(ui->pauseButton->isChecked()));
+    });
+    menu->addAction("Settings", [ = ]()
+    {
+        enterSettings();
+    });
+    menu->addAction("Exit", [ = ]()
+    {
+        on_closeButton_clicked();
+    });
 
 }
 
@@ -192,18 +204,18 @@ void MainWindow::nextSecond(MyTimer::timerState st, int currScnds)
 
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
-    qDebug()<<"triggered";
+    qDebug() << "triggered";
     menu->exec(event->globalPos());
 
 }
 
 void MainWindow::enterSettings()
 {
-    SettingDialog* settingDialog=new SettingDialog(settings,this);
-    connect(settingDialog,SettingDialog::settingChanged,this,MainWindow::onSettingChanged);
+    SettingDialog* settingDialog = new SettingDialog(settings, this);
+    connect(settingDialog, &SettingDialog::settingChanged, this, &MainWindow::onSettingChanged);
     settingDialog->show();
 }
-void MainWindow::onSettingChanged(bool isSpl,int Wh,int Wm,int Ws,int Rh, int Rm,int Rs)
+void MainWindow::onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, int Rm, int Rs)
 {
     QRect targetGeometry;
     if(isSpl)
@@ -211,10 +223,10 @@ void MainWindow::onSettingChanged(bool isSpl,int Wh,int Wm,int Ws,int Rh, int Rm
         ui->lockButton->setVisible(false);
         ui->pauseButton->setVisible(false);
         ui->closeButton->setVisible(false);
-        targetGeometry=this->geometry();
+        targetGeometry = this->geometry();
         targetGeometry.setWidth(80);
         this->setGeometry(targetGeometry);
-        targetGeometry=ui->centralwidget->geometry();
+        targetGeometry = ui->centralwidget->geometry();
         targetGeometry.setWidth(80);
         ui->centralwidget->setGeometry(targetGeometry);
         ui->widget->setGeometry(targetGeometry);
@@ -224,15 +236,24 @@ void MainWindow::onSettingChanged(bool isSpl,int Wh,int Wm,int Ws,int Rh, int Rm
         ui->lockButton->setVisible(true);
         ui->pauseButton->setVisible(true);
         ui->closeButton->setVisible(true);
-        targetGeometry=this->geometry();
+        targetGeometry = this->geometry();
         targetGeometry.setWidth(160);
         this->setGeometry(targetGeometry);
-        targetGeometry=ui->centralwidget->geometry();
+        targetGeometry = ui->centralwidget->geometry();
         targetGeometry.setWidth(160);
         ui->centralwidget->setGeometry(targetGeometry);
         ui->widget->setGeometry(targetGeometry);
     }
-    myTimer->setCtdnTime(Wh*3600+Wm*60+Ws);
-    myTimer->setRestTime(Rh*3600+Rm*60+Rs);
+    myTimer->setCtdnTime(Wh * 3600 + Wm * 60 + Ws);
+    myTimer->setRestTime(Rh * 3600 + Rm * 60 + Rs);
 
+}
+
+bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
+{
+    MSG* winMsg = static_cast<MSG *>(message);
+    HWND hWnd = winMsg->hwnd;
+    if(winMsg->message != WM_SETCURSOR && winMsg->message != WM_NCHITTEST && winMsg->message != WM_MOUSEMOVE)
+        qDebug() << winMsg->message << winMsg->lParam << winMsg->wParam;
+    return false;
 }

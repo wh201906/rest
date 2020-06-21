@@ -15,12 +15,14 @@ MyTimer::~MyTimer()
 
 void MyTimer::closeScreen()
 {
-    PostMessageA(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, 2); //When using SendMessage, the application might crash
+    //PostMessageA(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, 2); //When using SendMessage, the application might crash
+    LockWorkStation();
 }
 
 void MyTimer::openScreen()
 {
-    PostMessageA(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, -1); //When using SendMessage, the application might crash
+    //PostMessageA(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, -1); //When using SendMessage, the application might crash
+
 }
 
 void MyTimer::nextSecond()
@@ -54,7 +56,11 @@ void MyTimer::nextSecond()
         }
         else
         {
-            openScreen();
+            if(!isScreenOpened)
+            {
+                openScreen();
+                isScreenOpened = false;
+            }
             if(!range.contains(move))
                 setState(STATE_CTDN);
         }
@@ -82,11 +88,14 @@ void MyTimer::setState(timerState st)
         this->stop();
     else
     {
-        sigInterval=0;
+        sigInterval = 0;
         if(state == STATE_CTDN)
             currScnds = ctdnScnds;
         else
+        {
             currScnds = restScnds;
+            isScreenOpened = false;
+        }
         this->start();
     }
 }

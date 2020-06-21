@@ -15,27 +15,27 @@ SingleInstance::SingleInstance(const QString &token, QObject *parent): QSharedMe
 
 void SingleInstance::init()
 {
-    qDebug()<<this->attach();
-    qDebug()<<this->error();
+    qDebug() << this->attach();
+    qDebug() << this->error();
     if(this->error() == SingleInstance::NoError)
     {
 
         val = *valPtr;
 //        qDebug()<<"start waiting..."<<QTime::currentTime();
-        QThread::msleep(1.5*interval);
+        QThread::msleep(1.5 * interval);
 //        qDebug()<<"stop waiting..."<<QTime::currentTime();
-        if(*valPtr!=val)
+        if(*valPtr != val)
         {
-            runningState=RUNNING;
+            runningState = RUNNING;
         }
         else
         {
-            runningState=NOT_RUNNING;
+            runningState = NOT_RUNNING;
         }
         state = INITIALIZED;
 
     }
-    else if(runningState==NOT_RUNNING || this->error() == QSharedMemory::NotFound)
+    else if(runningState == NOT_RUNNING || this->error() == QSharedMemory::NotFound)
     {
         if(this->create(9))
         {
@@ -60,7 +60,7 @@ void SingleInstance::nextSecond()
         *newInsPtr = 0;
         emit newInstance();
     }
-    qDebug()<<*valPtr<<","<<*newInsPtr;
+//    qDebug()<<*valPtr<<","<<*newInsPtr;
 }
 
 SingleInstance::State SingleInstance::getState()
@@ -74,5 +74,5 @@ SingleInstance::RunningState SingleInstance::getRunningState()
 }
 void SingleInstance::sendMessage()
 {
-    *newInsPtr=1;
+    *newInsPtr = 1;
 }

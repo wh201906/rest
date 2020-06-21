@@ -13,7 +13,8 @@
 #include "mysettings.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 QT_END_NAMESPACE
@@ -32,6 +33,7 @@ public slots:
     void showWindow();
     void hideWindow();
     void onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, int Rm, int Rs);
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 private slots:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
@@ -68,7 +70,7 @@ private:
     QList<QRect> screenList;
 
 signals:
-    void restNow(MyTimer::timerState st=MyTimer::STATE_REST);
+    void restNow(MyTimer::timerState st = MyTimer::STATE_REST);
     void pause(bool st);
 };
 #endif // MAINWINDOW_H

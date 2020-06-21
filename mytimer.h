@@ -51,6 +51,8 @@ private:
     QRect range; // maximum range for mouse to move(in case a slight move resets the timer)
     const int MAXSIGINTERVAL = 5;
     int sigInterval = 0;
+
+    bool isScreenOpened = false;
 };
 
 #endif // MYTIMER_H
