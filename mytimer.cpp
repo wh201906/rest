@@ -38,29 +38,13 @@ void MyTimer::nextSecond()
     }
     else if(state == STATE_REST)
     {
-        QPoint move = QCursor().pos() - pos;
         if(currScnds > 0)
         {
             currScnds--;
-            if(sigInterval == 0)
-                closeScreen();
-            sigInterval = (sigInterval + 1) % MAXSIGINTERVAL;
-            if(!range.contains(move))
-            {
-                currScnds = restScnds;
-                closeScreen();
-            }
-            pos = QCursor().pos();
         }
         else
         {
-            if(!isScreenOpened)
-            {
-                openScreen();
-                isScreenOpened = false;
-            }
-            if(!range.contains(move))
-                setState(STATE_CTDN);
+            setState(STATE_CTDN);
         }
     }
 //    qDebug()<<"out:"<<currScnds;
@@ -96,6 +80,11 @@ void MyTimer::setState(timerState st)
         }
         this->start();
     }
+}
+
+int MyTimer::getState()
+{
+    return state;
 }
 
 void MyTimer::enableTimer(bool st)

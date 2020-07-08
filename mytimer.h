@@ -28,6 +28,7 @@ public:
     };
     void setCtdnTime(int time);
     void setRestTime(int time);
+    int getState();
 
 public slots:
     void setState(timerState st);

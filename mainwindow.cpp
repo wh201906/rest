@@ -258,6 +258,10 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
     if(winMsg->message == WM_WTSSESSION_CHANGE)
     {
         qDebug() << GetCurrentTime() << QString::number(winMsg->message, 16) << winMsg->lParam << winMsg->wParam;
+        if(winMsg->wParam == WTS_SESSION_UNLOCK && myTimer->getState() == MyTimer::STATE_REST)
+        {
+            myTimer->closeScreen();
+        }
     }
     return false;
 }
