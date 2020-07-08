@@ -11,6 +11,7 @@
 #include "settingdialog.h"
 #include "mytimer.h"
 #include "mysettings.h"
+#include "wtsapi32.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -34,8 +35,8 @@ public slots:
     void hideWindow();
     void onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, int Rm, int Rs);
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
-    void resizeEvent(QResizeEvent *event);
-    void moveEvent(QMoveEvent *event);
+//    void resizeEvent(QResizeEvent *event);
+//    void moveEvent(QMoveEvent *event);
 private slots:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);

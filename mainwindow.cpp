@@ -58,10 +58,13 @@ MainWindow::MainWindow(QWidget *parent)
     hideWindow();// 启动后直接隐藏窗口
 
     update();
+
+    WTSRegisterSessionNotification((HWND)this->winId(), NOTIFY_FOR_ALL_SESSIONS);
 }
 
 MainWindow::~MainWindow()
 {
+    WTSUnRegisterSessionNotification((HWND)this->winId());
     delete ui;
 }
 
@@ -129,7 +132,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
         isEdge = true;
         this->move(currScreen.left() + currScreen.width() - showRect.width(), this->geometry().top());
     }
-//    showRect = this->geometry();
+    showRect = this->geometry();
     ui->centralwidget->resize(showRect.size());
 //    qDebug() << "target:" << showRect;
 }
@@ -251,18 +254,19 @@ void MainWindow::onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, in
 
 bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
 {
-//    MSG* winMsg = static_cast<MSG *>(message);
-//    HWND hWnd = winMsg->hwnd;
-//    if(winMsg->message != WM_SETCURSOR && winMsg->message != WM_NCHITTEST && winMsg->message != WM_MOUSEMOVE)
-//        qDebug() << winMsg->message << winMsg->lParam << winMsg->wParam;
+    MSG* winMsg = static_cast<MSG *>(message);
+    if(winMsg->message == WM_WTSSESSION_CHANGE)
+    {
+        qDebug() << GetCurrentTime() << QString::number(winMsg->message, 16) << winMsg->lParam << winMsg->wParam;
+    }
     return false;
 }
 
-void MainWindow::resizeEvent(QResizeEvent *event)
-{
-    qDebug() << event << event->oldSize() << event->size() << event->type();
-}
-void MainWindow::moveEvent(QMoveEvent *event)
-{
-    qDebug() << event << event->oldPos() << event->pos() << event->type();
-}
+//void MainWindow::resizeEvent(QResizeEvent *event)
+//{
+//    qDebug() << event << event->oldSize() << event->size() << event->type();
+//}
+//void MainWindow::moveEvent(QMoveEvent *event)
+//{
+//    qDebug() << event << event->oldPos() << event->pos() << event->type();
+//}

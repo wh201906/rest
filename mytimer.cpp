@@ -15,19 +15,17 @@ MyTimer::~MyTimer()
 
 void MyTimer::closeScreen()
 {
-    //PostMessageA(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, 2); //When using SendMessage, the application might crash
     LockWorkStation();
 }
 
 void MyTimer::openScreen()
 {
-    //PostMessageA(HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER, -1); //When using SendMessage, the application might crash
 
 }
 
 void MyTimer::nextSecond()
 {
-//    qDebug()<<"in:"<<currScnds;
+
     if(state == STATE_CTDN)
     {
         currScnds--;

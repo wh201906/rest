@@ -45,3 +45,5 @@ QMAKE_TARGET_DESCRIPTION = "Rest Reminder"
 QMAKE_TARGET_COMPANY = "wh201906"
 
 #RC_FILE = rest_resource.rc
+
+win32: LIBS += -lwtsapi32
