@@ -35,8 +35,7 @@ public slots:
     void hideWindow();
     void onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, int Rm, int Rs);
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
-//    void resizeEvent(QResizeEvent *event);
-//    void moveEvent(QMoveEvent *event);
+
 private slots:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
@@ -46,8 +45,8 @@ private slots:
 
     void on_lockButton_clicked();
     void on_closeButton_clicked();
-
     void on_pauseButton_clicked(bool checked);
+
     void enterSettings();
     void contextMenuEvent(QContextMenuEvent *event);
 

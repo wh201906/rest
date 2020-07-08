@@ -48,7 +48,14 @@ void MyTimer::nextSecond()
 
 void MyTimer::setCtdnTime(int time)
 {
-    ctdnScnds = time;
+    if(ctdnScnds != time)
+    {
+        ctdnScnds = time;
+        if(state == STATE_CTDN)
+        {
+            currScnds = ctdnScnds;
+        }
+    }
 }
 
 void MyTimer::setRestTime(int time)
@@ -73,7 +80,7 @@ void MyTimer::setState(timerState st)
     }
 }
 
-int MyTimer::getState()
+MyTimer::timerState MyTimer::getState()
 {
     return state;
 }

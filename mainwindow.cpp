@@ -4,16 +4,11 @@
 #include <QScreen>
 #include <QString>
 
-
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-    this->setAttribute(Qt::WA_TranslucentBackground);
-    showRect.setHeight(30);
 
     settings = new MySettings("rest_settings.ini", MySettings::IniFormat, this);
 
@@ -54,10 +49,13 @@ MainWindow::MainWindow(QWidget *parent)
         on_closeButton_clicked();
     });
 
-    this->move((QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2, 0);
+    this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    this->setAttribute(Qt::WA_TranslucentBackground);
+    showRect.setSize(QSize(this->width(), 30)); // set the showRect first, then resize the window and widgets.
+    showRect.moveTo((QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2, 0); // don't use setTopLeft()
+    this->resize(showRect.size());
+    this->move(showRect.topLeft());
     hideWindow();// 启动后直接隐藏窗口
-
-    update();
 
     WTSRegisterSessionNotification((HWND)this->winId(), NOTIFY_FOR_ALL_SESSIONS);
 }
@@ -65,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     WTSUnRegisterSessionNotification((HWND)this->winId());
+    qDebug() << "MainWindow destroyed";
     delete ui;
 }
 
@@ -73,16 +72,15 @@ void MainWindow::on_lockButton_clicked()
 {
     emit restNow();
     QThread::msleep(1000);
-    MyTimer::closeScreen();
+    MyTimer::Lock();
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *e)
 {
-//    qDebug() << "move:" << e->pos() - startPos;
     if(isMoving)
     {
-        this->setGeometry(QRect(this->geometry().topLeft() + (e->pos() - startPos), showRect.size()));
-        ui->centralwidget->resize(showRect.size());
+        showRect.moveTo(showRect.topLeft() + (e->pos() - startPos));
+        this->move(showRect.topLeft());
     }
 }
 
@@ -103,38 +101,34 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
             edges[3] = true;
     }
 
-
     QRect currScreen = QApplication::screenAt(e->globalPos())->availableGeometry();
-//    qDebug() << "screen:" << currScreen;
     if(edges[0] && edges[1] && edges[2] && edges[3]) //跨屏幕边缘情况
         isEdge = false;
     else if(!edges[0] && !edges[1])
     {
         edgeSide = SIDE_UP;
         isEdge = true;
-        this->move(this->geometry().left(), 0);
+        showRect.moveTo(this->geometry().left(), 0);
     }
     else if(!edges[2] && !edges[3])
     {
         edgeSide = SIDE_DOWN;
         isEdge = true;
-        this->move(this->geometry().left(), currScreen.top() + currScreen.height() - showRect.height());
+        showRect.moveTo(this->geometry().left(), currScreen.top() + currScreen.height() - showRect.height());
     }
     else if(!edges[0] && !edges[2])
     {
         edgeSide = SIDE_LEFT;
         isEdge = true;
-        this->move(0, this->geometry().top());
+        showRect.moveTo(0, this->geometry().top());
     }
     else if(!edges[1] && !edges[3])
     {
         edgeSide = SIDE_RIGHT;
         isEdge = true;
-        this->move(currScreen.left() + currScreen.width() - showRect.width(), this->geometry().top());
+        showRect.moveTo(currScreen.left() + currScreen.width() - showRect.width(), this->geometry().top());
     }
-    showRect = this->geometry();
-    ui->centralwidget->resize(showRect.size());
-//    qDebug() << "target:" << showRect;
+    this->move(showRect.topLeft());
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *e)
@@ -170,7 +164,6 @@ void MainWindow::showWindow()
     if(isEdge)
     {
         this->move(showRect.topLeft());
-//        qDebug() << "show:" << this->geometry();
     }
 }
 
@@ -186,7 +179,6 @@ void MainWindow::hideWindow()
             this->move(-showRect.width() + EDGESIZE, showRect.y());
         else if(edgeSide == SIDE_RIGHT)
             this->move(showRect.left() + showRect.width() - EDGESIZE, showRect.y());
-//        qDebug() << "hide:" << this->geometry();
     }
 }
 
@@ -213,9 +205,7 @@ void MainWindow::nextSecond(MyTimer::timerState st, int currScnds)
 
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
-    qDebug() << "triggered";
     menu->exec(event->globalPos());
-
 }
 
 void MainWindow::enterSettings()
@@ -223,12 +213,9 @@ void MainWindow::enterSettings()
     SettingDialog* settingDialog = new SettingDialog(settings, this);
     connect(settingDialog, &SettingDialog::settingChanged, this, &MainWindow::onSettingChanged);
     settingDialog->show();
-//    settingDialog->exec();
 }
 void MainWindow::onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, int Rm, int Rs)
 {
-    qDebug() << ui->ctdnLabel->width() << ui->lockButton->width() << ui->pauseButton->width() << ui->closeButton->width();
-    qDebug() << this->width() << ui->centralwidget->width();
     if(isSpl)
     {
         ui->lockButton->setVisible(false);
@@ -246,10 +233,8 @@ void MainWindow::onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, in
     qDebug() << this->width() << ui->centralwidget->width();
     myTimer->setCtdnTime(Wh * 3600 + Wm * 60 + Ws);
     myTimer->setRestTime(Rh * 3600 + Rm * 60 + Rs);
-    ui->centralwidget->resize(showRect.size());
-    this->resize(showRect.size());
-    this->repaint();
-    // It seems that the the size of MainWindow will not update now.
+    this->setFixedWidth(showRect.width()); // resize() dosen't work there.
+    ui->centralwidget->setFixedWidth(showRect.width()); // resize() dosen't work there.
 }
 
 bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
@@ -260,17 +245,8 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
         qDebug() << GetCurrentTime() << QString::number(winMsg->message, 16) << winMsg->lParam << winMsg->wParam;
         if(winMsg->wParam == WTS_SESSION_UNLOCK && myTimer->getState() == MyTimer::STATE_REST)
         {
-            myTimer->closeScreen();
+            MyTimer::Lock();
         }
     }
     return false;
 }
-
-//void MainWindow::resizeEvent(QResizeEvent *event)
-//{
-//    qDebug() << event << event->oldSize() << event->size() << event->type();
-//}
-//void MainWindow::moveEvent(QMoveEvent *event)
-//{
-//    qDebug() << event << event->oldPos() << event->pos() << event->type();
-//}

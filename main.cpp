@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
         w.show();
 
         w.connect(&snglIns, &SingleInstance::newInstance, &w, &MainWindow::showWindow);
-
 //        // make a crash
 //        QThread::sleep(1);
 //        static_cast<MyTimer*>(nullptr)->nearZeroAlert();

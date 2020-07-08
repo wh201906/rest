@@ -21,9 +21,7 @@ void SingleInstance::init()
     {
 
         val = *valPtr;
-//        qDebug()<<"start waiting..."<<QTime::currentTime();
         QThread::msleep(1.5 * interval);
-//        qDebug()<<"stop waiting..."<<QTime::currentTime();
         if(*valPtr != val)
         {
             runningState = RUNNING;
@@ -60,7 +58,6 @@ void SingleInstance::nextSecond()
         *newInsPtr = 0;
         emit newInstance();
     }
-//    qDebug()<<*valPtr<<","<<*newInsPtr;
 }
 
 SingleInstance::State SingleInstance::getState()
