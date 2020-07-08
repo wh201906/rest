@@ -8,8 +8,6 @@
 #include <QRect>
 #include <QDebug>
 
-
-
 class MyTimer : public QTimer
 {
     Q_OBJECT
@@ -17,8 +15,7 @@ public:
     explicit MyTimer(QObject *parent = nullptr);
     ~MyTimer();
 
-    static void closeScreen(); // using Windows API to open/close screen
-    static void openScreen();
+    static void Lock(); // using Windows API to lock the current session
 
     enum timerState
     {
@@ -45,15 +42,6 @@ private:
     int currScnds = 0;
     int ctdnScnds = 40 * 60; // work for 40min
     int restScnds = 3 * 60; // rest for 3min
-//    int ctdnScnds = 35;
-//    int restScnds = 10; // for debugging
-
-    QPoint pos; // last mouse position
-    QRect range; // maximum range for mouse to move(in case a slight move resets the timer)
-    const int MAXSIGINTERVAL = 5;
-    int sigInterval = 0;
-
-    bool isScreenOpened = false;
 };
 
 #endif // MYTIMER_H

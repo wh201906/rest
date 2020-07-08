@@ -6,21 +6,15 @@ MyTimer::MyTimer(QObject *parent) : QTimer(parent)
     this->setInterval(1000);
     connect(this, &MyTimer::timeout, this, &MyTimer::nextSecond);
     state = STATE_IDLE;
-    range.setRect(-3, -3, 6, 6);
 }
 
 MyTimer::~MyTimer()
 {
 }
 
-void MyTimer::closeScreen()
+void MyTimer::Lock()
 {
     LockWorkStation();
-}
-
-void MyTimer::openScreen()
-{
-
 }
 
 void MyTimer::nextSecond()
@@ -47,7 +41,6 @@ void MyTimer::nextSecond()
             setState(STATE_CTDN);
         }
     }
-//    qDebug()<<"out:"<<currScnds;
     emit scndChanged(state, currScnds);
 }
 
@@ -70,13 +63,11 @@ void MyTimer::setState(timerState st)
         this->stop();
     else
     {
-        sigInterval = 0;
         if(state == STATE_CTDN)
             currScnds = ctdnScnds;
         else
         {
             currScnds = restScnds;
-            isScreenOpened = false;
         }
         this->start();
     }
