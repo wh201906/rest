@@ -32,14 +32,11 @@ void MyTimer::nextSecond()
     }
     else if(state == STATE_REST)
     {
-        if(currScnds > 0)
-        {
-            currScnds--;
-        }
-        else
-        {
+        currScnds--;
+        if(currScnds <= 0)
             setState(STATE_CTDN);
-        }
+        else if(currScnds == restScnds - 1)
+            Lock();
     }
     emit scndChanged(state, currScnds);
 }

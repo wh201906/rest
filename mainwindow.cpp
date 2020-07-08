@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setAttribute(Qt::WA_TranslucentBackground);
     showRect.setSize(QSize(this->width(), 30)); // set the showRect first, then resize the window and widgets.
     showRect.moveTo((QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2, 0); // don't use setTopLeft()
-    this->resize(showRect.size());
+    this->setFixedSize(showRect.size());
     this->move(showRect.topLeft());
     hideWindow();// 启动后直接隐藏窗口
 
@@ -169,7 +169,7 @@ void MainWindow::showWindow()
 
 void MainWindow::hideWindow()
 {
-    if(!nearZero && isEdge)
+    if(!nearZero && myTimer->getState() != MyTimer::STATE_REST && isEdge)
     {
         if(edgeSide == SIDE_UP)
             this->move(showRect.x(), -showRect.height() + EDGESIZE);
@@ -230,7 +230,6 @@ void MainWindow::onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, in
         ui->closeButton->setVisible(true);
         showRect.setWidth(5 * 5 + ui->ctdnLabel->width() + ui->lockButton->width() + ui->pauseButton->width() + ui->closeButton->width());
     }
-    qDebug() << this->width() << ui->centralwidget->width();
     myTimer->setCtdnTime(Wh * 3600 + Wm * 60 + Ws);
     myTimer->setRestTime(Rh * 3600 + Rm * 60 + Rs);
     this->setFixedWidth(showRect.width()); // resize() dosen't work there.
@@ -245,8 +244,18 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
         qDebug() << GetCurrentTime() << QString::number(winMsg->message, 16) << winMsg->lParam << winMsg->wParam;
         if(winMsg->wParam == WTS_SESSION_UNLOCK && myTimer->getState() == MyTimer::STATE_REST)
         {
+            for(int i = 0; i < 60; i++) // 3 seconds for force quit
+            {
+                QThread::msleep(50);
+                QApplication::processEvents();
+            }
             MyTimer::Lock();
         }
     }
+//    else if(winMsg->message == WM_DISPLAYCHANGE) //
+//    {
+//        qDebug() << "WM_DISPLAYCHANGE";
+//        update();
+//    }
     return false;
 }
