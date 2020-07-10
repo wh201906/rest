@@ -1,22 +1,50 @@
 ﻿#include "mysettings.h"
 
 MySettings::MySettings(const QString &fileName, QSettings::Format format, QObject *parent)
-    : QSettings(fileName, format, parent) {}
-
-QVariant MySettings::value(const QString &key) const
+    : QSettings(fileName, format, parent)
 {
-    if(key == "isSpl")
-        return QSettings::value(key, isSpl);
-    else if(key == "Wh")
-        return QSettings::value(key, Wh);
-    else if(key == "Wm")
-        return QSettings::value(key, Wm);
-    else if(key == "Ws")
-        return QSettings::value(key, Ws);
-    else if(key == "Rh")
-        return QSettings::value(key, Rh);
-    else if(key == "Rm")
-        return QSettings::value(key, Rm);
-    else if(key == "Rs")
-        return QSettings::value(key, Rs);
+    defaultSettings.insert("isSimple", false);
+    defaultSettings.insert("isForceLock", true);
+    defaultSettings.insert("Wh", 0);
+    defaultSettings.insert("Wm", 40);
+    defaultSettings.insert("Ws", 0);
+    defaultSettings.insert("Rh", 0);
+    defaultSettings.insert("Rm", 3);
+    defaultSettings.insert("Rs", 0);
+    defaultSettings.insert("lastPositionX", 0);
+    defaultSettings.insert("lastPositionY", 0);
+}
+
+QVariant MySettings::value(const QString &key, const QVariant &defaultValue) const
+{
+    qDebug() << key;
+    if(defaultValue.isValid())
+        return QSettings::value(key, defaultValue);
+    else
+        return QSettings::value(key, defaultSettings[key]);
+}
+
+MySettings::Items MySettings::getDefault()
+{
+    return defaultSettings;
+}
+MySettings::Items MySettings::getCurrent()
+{
+    MySettings::Items currItems = defaultSettings;
+    QStringList keys = defaultSettings.keys(); // get all available values.
+    for(int i = 0; i < keys.size(); i++)
+    {
+        qDebug() << MySettings::value(keys[i]);
+        currItems[keys[i]] = MySettings::value(keys[i]);
+    }
+    return currItems;
+}
+
+void MySettings::setValues(MySettings::Items items)
+{
+    QStringList keys = items.keys(); // only set the values existing in the QMap.
+    for(int i = 0; i < keys.size(); i++)
+    {
+        QSettings::setValue(keys[i], items[keys[i]]);
+    }
 }

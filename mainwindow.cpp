@@ -21,13 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(myTimer, &MyTimer::newRound, this, &MainWindow::hideWindow);
     connect(this, &MainWindow::restNow, myTimer, &MyTimer::setState);
     connect(this, &MainWindow::pause, myTimer, &MyTimer::enableTimer);
-    onSettingChanged(settings->value("isSpl").toBool(),
-                     settings->value("Wh").toInt(),
-                     settings->value("Wm").toInt(),
-                     settings->value("Ws").toInt(),
-                     settings->value("Rh").toInt(),
-                     settings->value("Rm").toInt(),
-                     settings->value("Rs").toInt());
+    onSettingChanged(settings->getCurrent());
 
     myTimer->setState(MyTimer::STATE_CTDN);
 
@@ -52,9 +46,13 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
     showRect.setSize(QSize(this->width(), 30)); // set the showRect first, then resize the window and widgets.
-    showRect.moveTo((QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2, 0); // don't use setTopLeft()
+
+    showRect.moveTo(
+        settings->value("lastPositionX", (QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2).toInt(),
+        settings->value("lastPositionY", 0).toInt()); // don't use setTopLeft()
     this->setFixedSize(showRect.size());
     this->move(showRect.topLeft());
+    edgeDetect();
     hideWindow();// 启动后直接隐藏窗口
 
     WTSRegisterSessionNotification((HWND)this->winId(), NOTIFY_FOR_ALL_SESSIONS);
@@ -88,6 +86,16 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     isMoving = false;
 
+    edgeDetect();
+
+    this->move(showRect.topLeft());
+    settings->setValue("lastPositionX", showRect.left());
+    settings->setValue("lastPositionY", showRect.top());
+
+}
+
+void MainWindow::edgeDetect()
+{
     bool edges[4] = {false, false, false, false};
     for(QRect item : screenList) //判断四个顶点是否在屏幕区域内
     {
@@ -101,34 +109,29 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
             edges[3] = true;
     }
 
-    QRect currScreen = QApplication::screenAt(e->globalPos())->availableGeometry();
+    QRect currScreen = QApplication::screenAt(this->pos())->availableGeometry();
     if(edges[0] && edges[1] && edges[2] && edges[3]) //跨屏幕边缘情况
-        isEdge = false;
+        edgeSide = SIDE_NONE;
     else if(!edges[0] && !edges[1])
     {
         edgeSide = SIDE_UP;
-        isEdge = true;
         showRect.moveTo(this->geometry().left(), 0);
     }
     else if(!edges[2] && !edges[3])
     {
         edgeSide = SIDE_DOWN;
-        isEdge = true;
         showRect.moveTo(this->geometry().left(), currScreen.top() + currScreen.height() - showRect.height());
     }
     else if(!edges[0] && !edges[2])
     {
         edgeSide = SIDE_LEFT;
-        isEdge = true;
         showRect.moveTo(0, this->geometry().top());
     }
     else if(!edges[1] && !edges[3])
     {
         edgeSide = SIDE_RIGHT;
-        isEdge = true;
         showRect.moveTo(currScreen.left() + currScreen.width() - showRect.width(), this->geometry().top());
     }
-    this->move(showRect.topLeft());
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *e)
@@ -161,7 +164,7 @@ void MainWindow::on_pauseButton_clicked(bool checked)
 
 void MainWindow::showWindow()
 {
-    if(isEdge)
+    if(edgeSide != SIDE_NONE)
     {
         this->move(showRect.topLeft());
     }
@@ -169,7 +172,7 @@ void MainWindow::showWindow()
 
 void MainWindow::hideWindow()
 {
-    if(!nearZero && myTimer->getState() != MyTimer::STATE_REST && isEdge)
+    if(!nearZero && myTimer->getState() != MyTimer::STATE_REST && edgeSide != SIDE_NONE)
     {
         if(edgeSide == SIDE_UP)
             this->move(showRect.x(), -showRect.height() + EDGESIZE);
@@ -214,9 +217,9 @@ void MainWindow::enterSettings()
     connect(settingDialog, &SettingDialog::settingChanged, this, &MainWindow::onSettingChanged);
     settingDialog->show();
 }
-void MainWindow::onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, int Rm, int Rs)
+void MainWindow::onSettingChanged(MySettings::Items items)
 {
-    if(isSpl)
+    if(items["isSimple"].toBool())
     {
         ui->lockButton->setVisible(false);
         ui->pauseButton->setVisible(false);
@@ -230,8 +233,8 @@ void MainWindow::onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, in
         ui->closeButton->setVisible(true);
         showRect.setWidth(5 * 5 + ui->ctdnLabel->width() + ui->lockButton->width() + ui->pauseButton->width() + ui->closeButton->width());
     }
-    myTimer->setCtdnTime(Wh * 3600 + Wm * 60 + Ws);
-    myTimer->setRestTime(Rh * 3600 + Rm * 60 + Rs);
+    myTimer->setCtdnTime(items["Wh"].toInt() * 3600 + items["Wm"].toInt() * 60 + items["Ws"].toInt());
+    myTimer->setRestTime(items["Rh"].toInt() * 3600 + items["Rm"].toInt() * 60 + items["Rs"].toInt());
     this->setFixedWidth(showRect.width()); // resize() dosen't work there.
     ui->centralwidget->setFixedWidth(showRect.width()); // resize() dosen't work there.
 }

@@ -3,7 +3,6 @@
 #include "singleinstance.h"
 
 #include <QApplication>
-//#include "myapplication.h"
 
 int main(int argc, char *argv[])
 {

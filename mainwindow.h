@@ -33,7 +33,7 @@ public slots:
     void nextSecond(MyTimer::timerState st, int currScnds);
     void showWindow();
     void hideWindow();
-    void onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, int Rm, int Rs);
+    void onSettingChanged(MySettings::Items items);
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 
 private slots:
@@ -65,13 +65,14 @@ private:
         SIDE_DOWN,
         SIDE_LEFT,
         SIDE_RIGHT,
+        SIDE_NONE,
     };
     sideType edgeSide = SIDE_UP;
-    bool isEdge = true;
     bool nearZero = false;
     const int EDGESIZE = 3;
     QList<QRect> screenList;
 
+    void edgeDetect();
 signals:
     void restNow(MyTimer::timerState st = MyTimer::STATE_REST);
     void pause(bool st);

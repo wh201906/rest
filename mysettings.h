@@ -2,21 +2,25 @@
 #define MYSETTINGS_H
 
 #include <QSettings>
+#include <QMap>
+#include <QDebug>
 
 class MySettings : public QSettings
 {
     Q_OBJECT
 public:
+    typedef QMap<QString, QVariant> Items;
+
     MySettings(const QString &fileName, Format format, QObject *parent = nullptr);
-    QVariant value(const QString &key) const;
+    QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
+
+    MySettings::Items getDefault();
+
+    MySettings::Items getCurrent();
+
+    void setValues(MySettings::Items items);
 private:
-    bool isSpl = false;
-    int Wh = 0;
-    int Wm = 40;
-    int Ws = 0;
-    int Rh = 0;
-    int Rm = 3;
-    int Rs = 0;
+    MySettings::Items defaultSettings;
 };
 
 #endif // MYSETTINGS_H

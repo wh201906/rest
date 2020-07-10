@@ -31,9 +31,9 @@ public:
 private:
     QTimer* timer;
     State state = NOT_READY;
-    RunningState runningState=UNKNOWN;
+    RunningState runningState = UNKNOWN;
     int val;
-    int interval=1000;
+    int interval = 1000;
 signals:
     void newInstance();
 private slots:
