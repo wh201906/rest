@@ -1,16 +1,21 @@
 # rest
 An app designed to remind you of rest and protect your eyesight when working.  
-Developed by Qt. Now available on Windows.  
+It's my first Qt Project.  
+
+![](README/rest.png)  
+
+![](README/rest.gif)
 
 ***
 
 ## Update Log:
 
-## V0.2
+## V0.2   
 + Use LockWorkStation() rather than CloseScreen()  
 (I change the general logic because the app can receive a notification when user unlock the computer. The previous version will call CloseScreen() frequently, which might do harm to the screen)  
 + Redesign UI  
-(Use layouts and change the structure of widgets)  
+(Use layouts and change the structure of widgets.)  
++ Refactor the class MySettings
 
 ## V0.1
 + Add Settings  

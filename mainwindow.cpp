@@ -26,6 +26,12 @@ MainWindow::MainWindow(QWidget *parent)
     myTimer->setState(MyTimer::STATE_CTDN);
 
     menu = new QMenu(this);
+    myInfo = new QAction("wh201906", this);
+    connect(myInfo, &QAction::triggered, [ = ]()
+    {
+        QDesktopServices::openUrl(QUrl("https://github.com/wh201906"));
+    });
+
     menu->addAction("Rest now", [ = ]()
     {
         on_lockButton_clicked();
@@ -42,18 +48,20 @@ MainWindow::MainWindow(QWidget *parent)
     {
         on_closeButton_clicked();
     });
+    menu->addSeparator();
+    menu->addAction(myInfo);
 
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     this->setAttribute(Qt::WA_TranslucentBackground);
-    showRect.setSize(QSize(this->width(), 30)); // set the showRect first, then resize the window and widgets.
 
+    showRect.setSize(QSize(this->width(), 30)); // set the showRect first, then resize the window and widgets.
     showRect.moveTo(
         settings->value("lastPositionX", (QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2).toInt(),
         settings->value("lastPositionY", 0).toInt()); // don't use setTopLeft()
     this->setFixedSize(showRect.size());
     this->move(showRect.topLeft());
     edgeDetect();
-    hideWindow();// 启动后直接隐藏窗口
+    hideWindow();// If the window is at the edge, then hide it.
 
     WTSRegisterSessionNotification((HWND)this->winId(), NOTIFY_FOR_ALL_SESSIONS);
 }
@@ -86,7 +94,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     isMoving = false;
 
-    edgeDetect();
+    edgeDetect(); // the mouse and window are in the same screen.
 
     this->move(showRect.topLeft());
     settings->setValue("lastPositionX", showRect.left());
@@ -97,7 +105,8 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
 void MainWindow::edgeDetect()
 {
     bool edges[4] = {false, false, false, false};
-    for(QRect item : screenList) //判断四个顶点是否在屏幕区域内
+    QRect currScreen;
+    for(QRect item : screenList) //detect whether the screens contains the 4 corners
     {
         if(item.contains(this->geometry().topLeft()))
             edges[0] = true;
@@ -107,10 +116,14 @@ void MainWindow::edgeDetect()
             edges[2] = true;
         if(item.contains(this->geometry().bottomRight()))
             edges[3] = true;
+
+        if(item.intersects(showRect)) // detect the current screen
+        {
+            currScreen = QApplication::screenAt(item.center())->availableGeometry();
+        }
     }
 
-    QRect currScreen = QApplication::screenAt(this->pos())->availableGeometry();
-    if(edges[0] && edges[1] && edges[2] && edges[3]) //跨屏幕边缘情况
+    if(edges[0] && edges[1] && edges[2] && edges[3]) //detect which edge is in the screen area
         edgeSide = SIDE_NONE;
     else if(!edges[0] && !edges[1])
     {
@@ -235,6 +248,7 @@ void MainWindow::onSettingChanged(MySettings::Items items)
     }
     myTimer->setCtdnTime(items["Wh"].toInt() * 3600 + items["Wm"].toInt() * 60 + items["Ws"].toInt());
     myTimer->setRestTime(items["Rh"].toInt() * 3600 + items["Rm"].toInt() * 60 + items["Rs"].toInt());
+    isForceLock = items["isForceLock"].toBool();
     this->setFixedWidth(showRect.width()); // resize() dosen't work there.
     ui->centralwidget->setFixedWidth(showRect.width()); // resize() dosen't work there.
 }
@@ -242,10 +256,9 @@ void MainWindow::onSettingChanged(MySettings::Items items)
 bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
 {
     MSG* winMsg = static_cast<MSG *>(message);
-    if(winMsg->message == WM_WTSSESSION_CHANGE)
+    if(winMsg->message == WM_WTSSESSION_CHANGE && winMsg->wParam == WTS_SESSION_UNLOCK)
     {
-        qDebug() << GetCurrentTime() << QString::number(winMsg->message, 16) << winMsg->lParam << winMsg->wParam;
-        if(winMsg->wParam == WTS_SESSION_UNLOCK && myTimer->getState() == MyTimer::STATE_REST)
+        if(isForceLock && myTimer->getState() == MyTimer::STATE_REST)
         {
             for(int i = 0; i < 60; i++) // 3 seconds for force quit
             {

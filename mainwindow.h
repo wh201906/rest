@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QThread>
 #include <QMenu>
+#include <QDesktopServices>
 #include "settingdialog.h"
 #include "mytimer.h"
 #include "mysettings.h"
@@ -53,7 +54,9 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QMenu *menu;
+    QAction* myInfo;
     MyTimer* myTimer;
+    bool isForceLock = true;
 
     QPoint startPos;
     QRect showRect;

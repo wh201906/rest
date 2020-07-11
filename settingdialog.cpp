@@ -19,9 +19,12 @@ SettingDialog::SettingDialog(MySettings* settings, QWidget *parent) :
     editList->append(ui->RmEdit);
     editList->append(ui->RsEdit);
     for(int i = 0; i < editList->size(); i++)
+    {
         (*editList)[i]->setValidator(validator);
+    }
 
     ui->simpleModeBox->setChecked(myset->value("isSimple").toBool());
+    ui->forceLockBox->setChecked(myset->value("isForceLock").toBool());
     ui->WhEdit->setText(QString::number(myset->value("Wh").toInt()));
     ui->WmEdit->setText(QString::number(myset->value("Wm").toInt()));
     ui->WsEdit->setText(QString::number(myset->value("Ws").toInt()));
