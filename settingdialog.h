@@ -34,6 +34,8 @@ private:
 
 signals:
     void settingChanged(MySettings::Items items);
+private slots:
+    void on_buttonBox_accepted();
 };
 
 #endif // SETTINGDIALOG_H

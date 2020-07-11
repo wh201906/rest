@@ -25,6 +25,7 @@ SettingDialog::SettingDialog(MySettings* settings, QWidget *parent) :
 
     ui->simpleModeBox->setChecked(myset->value("isSimple").toBool());
     ui->forceLockBox->setChecked(myset->value("isForceLock").toBool());
+    ui->taskbarBox->setChecked(myset->value("hasTaskbarItem").toBool());
     ui->WhEdit->setText(QString::number(myset->value("Wh").toInt()));
     ui->WmEdit->setText(QString::number(myset->value("Wm").toInt()));
     ui->WsEdit->setText(QString::number(myset->value("Ws").toInt()));
@@ -47,6 +48,7 @@ void SettingDialog::accept()
 
     newItems.insert("isSimple", ui->simpleModeBox->isChecked());
     newItems.insert("isForceLock", ui->forceLockBox->isChecked());
+    newItems.insert("hasTaskbarItem", ui->taskbarBox->isChecked());
     newItems.insert("Wh", ui->WhEdit->text().toInt());
     newItems.insert("Wm", ui->WmEdit->text().toInt());
     newItems.insert("Ws", ui->WsEdit->text().toInt());
@@ -58,4 +60,9 @@ void SettingDialog::accept()
     myset->setValues(newItems);
 
     QDialog::accept();
+}
+
+void SettingDialog::on_buttonBox_accepted()
+{
+
 }

@@ -52,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent)
     menu->addAction(myInfo);
 
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    this->setWindowFlag(Qt::Tool, !settings->value("hasTaskbarItem").toBool());
+    // after the window is created, use setWindowFlag will hide the window, and if I attempt to use show() after setWindowFlag(), the window will be strange.
+    // So I have to only use it before the window is created.
     this->setAttribute(Qt::WA_TranslucentBackground);
 
     showRect.setSize(QSize(this->width(), 30)); // set the showRect first, then resize the window and widgets.
