@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
+    <width>270</width>
     <height>300</height>
    </rect>
   </property>
@@ -18,13 +18,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>250</width>
+    <width>270</width>
     <height>300</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>250</width>
+    <width>270</width>
     <height>300</height>
    </size>
   </property>
@@ -36,6 +36,27 @@
     <widget class="QCheckBox" name="simpleModeBox">
      <property name="text">
       <string>Simple Mode</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="forceLockBox">
+     <property name="text">
+      <string>Force Lock</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="taskbarBox">
+     <property name="text">
+      <string>Show in Taskbar
+(require restarting this app)</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -316,6 +337,12 @@
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

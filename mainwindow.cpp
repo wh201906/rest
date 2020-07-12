@@ -4,48 +4,75 @@
 #include <QScreen>
 #include <QString>
 
-
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    settings=new MySettings("rest_settings.ini",MySettings::IniFormat,this);
+    settings = new MySettings("rest_settings.ini", MySettings::IniFormat, this);
 
-    this->move((QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2, 0);
-    showRect = this->geometry();
     for(QScreen* item : QApplication::screens())
         screenList.append(item->availableGeometry());
-    hideWindow();// 启动后直接隐藏窗口
 
-    myTimer=new MyTimer(this);
+    myTimer = new MyTimer(this);
     connect(myTimer, &MyTimer::scndChanged, this, &MainWindow::nextSecond);
     connect(myTimer, &MyTimer::nearZeroAlert, this, &MainWindow::showWindow);
     connect(myTimer, &MyTimer::newRound, this, &MainWindow::hideWindow);
     connect(this, &MainWindow::restNow, myTimer, &MyTimer::setState);
     connect(this, &MainWindow::pause, myTimer, &MyTimer::enableTimer);
-    onSettingChanged(settings->value("isSpl").toBool(),
-                     settings->value("Wh").toInt(),
-                     settings->value("Wm").toInt(),
-                     settings->value("Ws").toInt(),
-                     settings->value("Rh").toInt(),
-                     settings->value("Rm").toInt(),
-                     settings->value("Rs").toInt());
+    onSettingChanged(settings->getCurrent());
 
     myTimer->setState(MyTimer::STATE_CTDN);
 
-    menu=new QMenu(this);
-    menu->addAction("Rest now",[=](){on_lockButton_clicked();});
-    menu->addAction("Pause",[=](){on_pauseButton_clicked(!(ui->pauseButton->isChecked()));});
-    menu->addAction("Settings",[=](){enterSettings();});
-    menu->addAction("Exit",[=](){on_closeButton_clicked();});
+    menu = new QMenu(this);
+    myInfo = new QAction("wh201906", this);
+    connect(myInfo, &QAction::triggered, [ = ]()
+    {
+        QDesktopServices::openUrl(QUrl("https://github.com/wh201906"));
+    });
 
+    menu->addAction("Rest now", [ = ]()
+    {
+        on_lockButton_clicked();
+    });
+    menu->addAction("Pause", [ = ]()
+    {
+        on_pauseButton_clicked(!(ui->pauseButton->isChecked()));
+    });
+    menu->addAction("Settings", [ = ]()
+    {
+        enterSettings();
+    });
+    menu->addAction("Exit", [ = ]()
+    {
+        on_closeButton_clicked();
+    });
+    menu->addSeparator();
+    menu->addAction(myInfo);
+
+    this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    this->setWindowFlag(Qt::Tool, !settings->value("hasTaskbarItem").toBool());
+    // after the window is created, use setWindowFlag will hide the window, and if I attempt to use show() after setWindowFlag(), the window will be strange.
+    // So I have to only use it before the window is created.
+    this->setAttribute(Qt::WA_TranslucentBackground);
+
+    showRect.setSize(QSize(this->width(), 30)); // set the showRect first, then resize the window and widgets.
+    showRect.moveTo(
+        settings->value("lastPositionX", (QApplication::screenAt(QCursor().pos())->geometry().width() - this->geometry().width()) / 2).toInt(),
+        settings->value("lastPositionY", 0).toInt()); // don't use setTopLeft()
+    this->setFixedSize(showRect.size());
+    this->move(showRect.topLeft());
+    edgeDetect();
+    hideWindow();// If the window is at the edge, then hide it.
+
+    WTSRegisterSessionNotification((HWND)this->winId(), NOTIFY_FOR_ALL_SESSIONS);
 }
 
 MainWindow::~MainWindow()
 {
+    WTSUnRegisterSessionNotification((HWND)this->winId());
+    qDebug() << "MainWindow destroyed";
     delete ui;
 }
 
@@ -54,15 +81,15 @@ void MainWindow::on_lockButton_clicked()
 {
     emit restNow();
     QThread::msleep(1000);
-    MyTimer::closeScreen();
+    MyTimer::Lock();
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *e)
 {
-//    qDebug() << "move:" << e->pos() - startPos;
     if(isMoving)
     {
-        this->setGeometry(QRect(this->geometry().topLeft() + (e->pos() - startPos), QSize(180, 30)));
+        showRect.moveTo(showRect.topLeft() + (e->pos() - startPos));
+        this->move(showRect.topLeft());
     }
 }
 
@@ -70,50 +97,57 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     isMoving = false;
 
+    edgeDetect(); // the mouse and window are in the same screen.
+
+    this->move(showRect.topLeft());
+    settings->setValue("lastPositionX", showRect.left());
+    settings->setValue("lastPositionY", showRect.top());
+
+}
+
+void MainWindow::edgeDetect()
+{
     bool edges[4] = {false, false, false, false};
-    for(QRect item : screenList) //判断四个顶点是否在屏幕区域内
+    QRect currScreen;
+    for(QRect item : screenList) //detect whether the screens contains the 4 corners(for every screen)
     {
-        if(item.contains(this->geometry().topLeft()))
+        if(this->geometry().top() <= item.top()) // the contains() will not handle the situation when this->geometry().top() == item.top()
             edges[0] = true;
-        if(item.contains(this->geometry().topRight()))
+        if(this->geometry().bottom() >= item.bottom())
             edges[1] = true;
-        if(item.contains(this->geometry().bottomLeft()))
+        if(this->geometry().left() <= item.left())
             edges[2] = true;
-        if(item.contains(this->geometry().bottomRight()))
+        if(this->geometry().right() >= item.right())
             edges[3] = true;
+
+        if(item.intersects(showRect)) // detect the current screen
+        {
+            currScreen = QApplication::screenAt(item.center())->availableGeometry();
+        }
     }
 
-
-    QRect currScreen = QApplication::screenAt(e->globalPos())->availableGeometry();
-//    qDebug() << "screen:" << currScreen;
-    if(edges[0] && edges[1] && edges[2] && edges[3]) //跨屏幕边缘情况
-        isEdge = false;
-    else if(!edges[0] && !edges[1])
+    if(!edges[0] && !edges[1] && !edges[2] && !edges[3]) //detect which edge is in the screen area
+        edgeSide = SIDE_NONE;
+    else if(edges[0])
     {
         edgeSide = SIDE_UP;
-        isEdge = true;
-        this->move(this->geometry().left(), 0);
+        showRect.moveTo(this->geometry().left(), 0);
     }
-    else if(!edges[2] && !edges[3])
+    else if(edges[1])
     {
         edgeSide = SIDE_DOWN;
-        isEdge = true;
-        this->move(this->geometry().left(), currScreen.top() + currScreen.height() - showRect.height());
+        showRect.moveTo(this->geometry().left(), currScreen.top() + currScreen.height() - showRect.height());
     }
-    else if(!edges[0] && !edges[2])
+    else if(edges[2])
     {
         edgeSide = SIDE_LEFT;
-        isEdge = true;
-        this->move(0, this->geometry().top());
+        showRect.moveTo(0, this->geometry().top());
     }
-    else if(!edges[1] && !edges[3])
+    else if(edges[3])
     {
         edgeSide = SIDE_RIGHT;
-        isEdge = true;
-        this->move(currScreen.left() + currScreen.width() - showRect.width(), this->geometry().top());
+        showRect.moveTo(currScreen.left() + currScreen.width() - showRect.width(), this->geometry().top());
     }
-    showRect = this->geometry();
-//    qDebug() << "target:" << showRect;
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *e)
@@ -146,16 +180,15 @@ void MainWindow::on_pauseButton_clicked(bool checked)
 
 void MainWindow::showWindow()
 {
-    if(isEdge)
+    if(edgeSide != SIDE_NONE)
     {
         this->move(showRect.topLeft());
-//        qDebug() << "show:" << this->geometry();
     }
 }
 
 void MainWindow::hideWindow()
 {
-    if(!nearZero && isEdge)
+    if(!nearZero && myTimer->getState() != MyTimer::STATE_REST && edgeSide != SIDE_NONE)
     {
         if(edgeSide == SIDE_UP)
             this->move(showRect.x(), -showRect.height() + EDGESIZE);
@@ -165,7 +198,6 @@ void MainWindow::hideWindow()
             this->move(-showRect.width() + EDGESIZE, showRect.y());
         else if(edgeSide == SIDE_RIGHT)
             this->move(showRect.left() + showRect.width() - EDGESIZE, showRect.y());
-//        qDebug() << "hide:" << this->geometry();
     }
 }
 
@@ -192,47 +224,59 @@ void MainWindow::nextSecond(MyTimer::timerState st, int currScnds)
 
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
-    qDebug()<<"triggered";
     menu->exec(event->globalPos());
-
 }
 
 void MainWindow::enterSettings()
 {
-    SettingDialog* settingDialog=new SettingDialog(settings,this);
-    connect(settingDialog,SettingDialog::settingChanged,this,MainWindow::onSettingChanged);
+    SettingDialog* settingDialog = new SettingDialog(settings, this);
+    connect(settingDialog, &SettingDialog::settingChanged, this, &MainWindow::onSettingChanged);
     settingDialog->show();
 }
-void MainWindow::onSettingChanged(bool isSpl,int Wh,int Wm,int Ws,int Rh, int Rm,int Rs)
+void MainWindow::onSettingChanged(MySettings::Items items)
 {
-    QRect targetGeometry;
-    if(isSpl)
+    if(items["isSimple"].toBool())
     {
         ui->lockButton->setVisible(false);
         ui->pauseButton->setVisible(false);
         ui->closeButton->setVisible(false);
-        targetGeometry=this->geometry();
-        targetGeometry.setWidth(80);
-        this->setGeometry(targetGeometry);
-        targetGeometry=ui->centralwidget->geometry();
-        targetGeometry.setWidth(80);
-        ui->centralwidget->setGeometry(targetGeometry);
-        ui->widget->setGeometry(targetGeometry);
+        showRect.setWidth(5 * 2 + ui->ctdnLabel->width());
     }
     else
     {
         ui->lockButton->setVisible(true);
         ui->pauseButton->setVisible(true);
         ui->closeButton->setVisible(true);
-        targetGeometry=this->geometry();
-        targetGeometry.setWidth(160);
-        this->setGeometry(targetGeometry);
-        targetGeometry=ui->centralwidget->geometry();
-        targetGeometry.setWidth(160);
-        ui->centralwidget->setGeometry(targetGeometry);
-        ui->widget->setGeometry(targetGeometry);
+        showRect.setWidth(5 * 5 + ui->ctdnLabel->width() + ui->lockButton->width() + ui->pauseButton->width() + ui->closeButton->width());
     }
-    myTimer->setCtdnTime(Wh*3600+Wm*60+Ws);
-    myTimer->setRestTime(Rh*3600+Rm*60+Rs);
+    myTimer->setCtdnTime(items["Wh"].toInt() * 3600 + items["Wm"].toInt() * 60 + items["Ws"].toInt());
+    myTimer->setRestTime(items["Rh"].toInt() * 3600 + items["Rm"].toInt() * 60 + items["Rs"].toInt());
+    isForceLock = items["isForceLock"].toBool();
+    this->setFixedWidth(showRect.width()); // resize() dosen't work there.
+    ui->centralwidget->setFixedWidth(showRect.width()); // resize() dosen't work there.
+}
 
+bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result) // used for force lock
+{
+    MSG* winMsg = static_cast<MSG *>(message);
+    if(winMsg->message == WM_WTSSESSION_CHANGE && winMsg->wParam == WTS_SESSION_UNLOCK)
+    {
+        if(isForceLock && myTimer->getState() == MyTimer::STATE_REST)
+        {
+            // 3 seconds for quiting the app forcefully when in rest mode.
+            // After the exit button is clicked, the app will lock the screen first then close itself. The user need to unlock manually.
+            for(int i = 0; i < 60; i++)
+            {
+                QThread::msleep(50);
+                QApplication::processEvents();
+            }
+            MyTimer::Lock();
+        }
+    }
+//    else if(winMsg->message == WM_DISPLAYCHANGE) //
+//    {
+//        qDebug() << "WM_DISPLAYCHANGE";
+//        update();
+//    }
+    return false;
 }

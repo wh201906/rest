@@ -39,9 +39,11 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-VERSION = 0.1
+VERSION = 0.2
 QMAKE_TARGET_PRODUCT = "Rest"
 QMAKE_TARGET_DESCRIPTION = "Rest Reminder"
 QMAKE_TARGET_COMPANY = "wh201906"
 
 #RC_FILE = rest_resource.rc
+
+win32: LIBS += -lwtsapi32

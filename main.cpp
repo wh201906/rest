@@ -3,24 +3,20 @@
 #include "singleinstance.h"
 
 #include <QApplication>
-//#include "myapplication.h"
 
 int main(int argc, char *argv[])
 {
     QString token = "10db51c0-d387-4834-8984-661cc53259a6";
-     qDebug()<<token;
+    qDebug() << token;
     QApplication a(argc, argv);
     MainWindow w;
     SingleInstance snglIns(token);
     snglIns.init();
     if(snglIns.getRunningState() == SingleInstance::NOT_RUNNING)
     {
-        w.setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-        w.setAttribute(Qt::WA_TranslucentBackground);
         w.show();
 
-        w.connect(&snglIns,&SingleInstance::newInstance,&w,&MainWindow::showWindow);
-
+        w.connect(&snglIns, &SingleInstance::newInstance, &w, &MainWindow::showWindow);
 //        // make a crash
 //        QThread::sleep(1);
 //        static_cast<MyTimer*>(nullptr)->nearZeroAlert();
@@ -30,7 +26,7 @@ int main(int argc, char *argv[])
     else
     {
         snglIns.sendMessage();
-        qDebug()<<snglIns.getRunningState();
+        qDebug() << snglIns.getRunningState();
         return 0;
     }
 }

@@ -8,12 +8,15 @@
 #include <QTimer>
 #include <QThread>
 #include <QMenu>
+#include <QDesktopServices>
 #include "settingdialog.h"
 #include "mytimer.h"
 #include "mysettings.h"
+#include "wtsapi32.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 QT_END_NAMESPACE
@@ -31,7 +34,9 @@ public slots:
     void nextSecond(MyTimer::timerState st, int currScnds);
     void showWindow();
     void hideWindow();
-    void onSettingChanged(bool isSpl, int Wh, int Wm, int Ws, int Rh, int Rm, int Rs);
+    void onSettingChanged(MySettings::Items items);
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result);
+
 private slots:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
@@ -41,14 +46,17 @@ private slots:
 
     void on_lockButton_clicked();
     void on_closeButton_clicked();
-
     void on_pauseButton_clicked(bool checked);
+
     void enterSettings();
     void contextMenuEvent(QContextMenuEvent *event);
+
 private:
     Ui::MainWindow *ui;
     QMenu *menu;
+    QAction* myInfo;
     MyTimer* myTimer;
+    bool isForceLock = true;
 
     QPoint startPos;
     QRect showRect;
@@ -60,15 +68,16 @@ private:
         SIDE_DOWN,
         SIDE_LEFT,
         SIDE_RIGHT,
+        SIDE_NONE,
     };
     sideType edgeSide = SIDE_UP;
-    bool isEdge = true;
     bool nearZero = false;
     const int EDGESIZE = 3;
     QList<QRect> screenList;
 
+    void edgeDetect();
 signals:
-    void restNow(MyTimer::timerState st=MyTimer::STATE_REST);
+    void restNow(MyTimer::timerState st = MyTimer::STATE_REST);
     void pause(bool st);
 };
 #endif // MAINWINDOW_H
