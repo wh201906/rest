@@ -109,15 +109,15 @@ void MainWindow::edgeDetect()
 {
     bool edges[4] = {false, false, false, false};
     QRect currScreen;
-    for(QRect item : screenList) //detect whether the screens contains the 4 corners
+    for(QRect item : screenList) //detect whether the screens contains the 4 corners(for every screen)
     {
-        if(item.contains(this->geometry().topLeft()))
+        if(this->geometry().top() <= item.top()) // the contains() will not handle the situation when this->geometry().top() == item.top()
             edges[0] = true;
-        if(item.contains(this->geometry().topRight()))
+        if(this->geometry().bottom() >= item.bottom())
             edges[1] = true;
-        if(item.contains(this->geometry().bottomLeft()))
+        if(this->geometry().left() <= item.left())
             edges[2] = true;
-        if(item.contains(this->geometry().bottomRight()))
+        if(this->geometry().right() >= item.right())
             edges[3] = true;
 
         if(item.intersects(showRect)) // detect the current screen
@@ -126,24 +126,24 @@ void MainWindow::edgeDetect()
         }
     }
 
-    if(edges[0] && edges[1] && edges[2] && edges[3]) //detect which edge is in the screen area
+    if(!edges[0] && !edges[1] && !edges[2] && !edges[3]) //detect which edge is in the screen area
         edgeSide = SIDE_NONE;
-    else if(!edges[0] && !edges[1])
+    else if(edges[0])
     {
         edgeSide = SIDE_UP;
         showRect.moveTo(this->geometry().left(), 0);
     }
-    else if(!edges[2] && !edges[3])
+    else if(edges[1])
     {
         edgeSide = SIDE_DOWN;
         showRect.moveTo(this->geometry().left(), currScreen.top() + currScreen.height() - showRect.height());
     }
-    else if(!edges[0] && !edges[2])
+    else if(edges[2])
     {
         edgeSide = SIDE_LEFT;
         showRect.moveTo(0, this->geometry().top());
     }
-    else if(!edges[1] && !edges[3])
+    else if(edges[3])
     {
         edgeSide = SIDE_RIGHT;
         showRect.moveTo(currScreen.left() + currScreen.width() - showRect.width(), this->geometry().top());
