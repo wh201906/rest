@@ -49,3 +49,8 @@ void MySettings::setValues(MySettings::Items items)
         QSettings::setValue(keys[i], items[keys[i]]);
     }
 }
+
+// To add a new setting item:
+// 1. add the new key and default value for the new item(when reading settings, the app will search all keys in defaultSttings)
+// 2. put related codes in the MainWindow
+// 3. make a proper UI to set this item in SettingDialog

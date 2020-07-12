@@ -256,14 +256,16 @@ void MainWindow::onSettingChanged(MySettings::Items items)
     ui->centralwidget->setFixedWidth(showRect.width()); // resize() dosen't work there.
 }
 
-bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
+bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result) // used for force lock
 {
     MSG* winMsg = static_cast<MSG *>(message);
     if(winMsg->message == WM_WTSSESSION_CHANGE && winMsg->wParam == WTS_SESSION_UNLOCK)
     {
         if(isForceLock && myTimer->getState() == MyTimer::STATE_REST)
         {
-            for(int i = 0; i < 60; i++) // 3 seconds for force quit
+            // 3 seconds for quiting the app forcefully when in rest mode.
+            // After the exit button is clicked, the app will lock the screen first then close itself. The user need to unlock manually.
+            for(int i = 0; i < 60; i++)
             {
                 QThread::msleep(50);
                 QApplication::processEvents();

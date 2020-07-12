@@ -15,7 +15,8 @@ It's my first Qt Project.
 (I change the general logic because the app can receive a notification when user unlock the computer. The previous version will call CloseScreen() frequently, which might do harm to the screen)  
 + Redesign UI  
 (Use layouts and change the structure of widgets.)  
-+ Refactor the class MySettings
++ Refactor the class MySettings  
++ Fix some bugs  
 
 ## V0.1
 + Add Settings  
