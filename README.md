@@ -1,5 +1,5 @@
 # rest
-An app designed to remind you of rest and protect your eyesight when working.  
+An app designed to remind you of rest and protect your eyesight when you are working.  
 It's my first Qt Project.  
 
 ![](README/rest.png)  
