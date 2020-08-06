@@ -10,6 +10,12 @@ It's my first Qt Project.
 
 ## Update Log:
 
+## V0.2.1  
++ Change menu text when the timer is paused  
++ Move the forcelock logic into class MyTimer  
++ Start another round after the screen is unlocked  
++ After force quit, user doesn't need to unlock again  
+
 ## V0.2   
 + Use LockWorkStation() rather than CloseScreen()  
 (I change the general logic because the app can receive a notification when user unlock the computer. The previous version will call CloseScreen() frequently, which might do harm to the screen)  

@@ -56,7 +56,6 @@ private:
     QMenu *menu;
     QAction* myInfo;
     MyTimer* myTimer;
-    bool isForceLock = true;
 
     QPoint startPos;
     QRect showRect;
@@ -74,10 +73,12 @@ private:
     bool nearZero = false;
     const int EDGESIZE = 3;
     QList<QRect> screenList;
+    QAction* pauseAction;
 
     void edgeDetect();
 signals:
     void restNow(MyTimer::timerState st = MyTimer::STATE_REST);
     void pause(bool st);
+    void lockStateChanged(bool state);
 };
 #endif // MAINWINDOW_H

@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(myTimer, &MyTimer::newRound, this, &MainWindow::hideWindow);
     connect(this, &MainWindow::restNow, myTimer, &MyTimer::setState);
     connect(this, &MainWindow::pause, myTimer, &MyTimer::enableTimer);
+    connect(this, &MainWindow::lockStateChanged, myTimer, &MyTimer::onLockStateChanged);
     onSettingChanged(settings->getCurrent());
 
     myTimer->setState(MyTimer::STATE_CTDN);
@@ -36,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         on_lockButton_clicked();
     });
-    menu->addAction("Pause", [ = ]()
+    pauseAction = menu->addAction("Pause", [ = ]()
     {
         on_pauseButton_clicked(!(ui->pauseButton->isChecked()));
     });
@@ -173,6 +174,14 @@ void MainWindow::on_closeButton_clicked()
 
 void MainWindow::on_pauseButton_clicked(bool checked)
 {
+    if(checked)
+    {
+        pauseAction->setText("Resume");
+    }
+    else
+    {
+        pauseAction->setText("Pause");
+    }
     ui->pauseButton->setChecked(checked);
     ui->lockButton->setEnabled(!checked);
     emit pause(!checked);
@@ -251,7 +260,7 @@ void MainWindow::onSettingChanged(MySettings::Items items)
     }
     myTimer->setCtdnTime(items["Wh"].toInt() * 3600 + items["Wm"].toInt() * 60 + items["Ws"].toInt());
     myTimer->setRestTime(items["Rh"].toInt() * 3600 + items["Rm"].toInt() * 60 + items["Rs"].toInt());
-    isForceLock = items["isForceLock"].toBool();
+    myTimer->setForceLock(items["isForceLock"].toBool());
     this->setFixedWidth(showRect.width()); // resize() dosen't work there.
     ui->centralwidget->setFixedWidth(showRect.width()); // resize() dosen't work there.
 }
@@ -259,19 +268,17 @@ void MainWindow::onSettingChanged(MySettings::Items items)
 bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result) // used for force lock
 {
     MSG* winMsg = static_cast<MSG *>(message);
-    if(winMsg->message == WM_WTSSESSION_CHANGE && winMsg->wParam == WTS_SESSION_UNLOCK)
+    if(winMsg->message == WM_WTSSESSION_CHANGE)
     {
-        if(isForceLock && myTimer->getState() == MyTimer::STATE_REST)
+        if(winMsg->wParam == WTS_SESSION_LOCK)
         {
-            // 3 seconds for quiting the app forcefully when in rest mode.
-            // After the exit button is clicked, the app will lock the screen first then close itself. The user need to unlock manually.
-            for(int i = 0; i < 60; i++)
-            {
-                QThread::msleep(50);
-                QApplication::processEvents();
-            }
-            MyTimer::Lock();
+            emit lockStateChanged(true);
         }
+        else if(winMsg->wParam == WTS_SESSION_UNLOCK)
+        {
+            emit lockStateChanged(false);
+        }
+        qDebug() << "lockState:" << (winMsg->wParam == WTS_SESSION_LOCK);
     }
 //    else if(winMsg->message == WM_DISPLAYCHANGE) //
 //    {
