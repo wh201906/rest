@@ -27,9 +27,11 @@ public:
     void setRestTime(int time);
     timerState getState();
 
+    void setForceLock(bool state);
 public slots:
     void setState(timerState st);
     void enableTimer(bool st);
+    void onLockStateChanged(bool state);
 signals:
     void scndChanged(timerState st, int currScnds);// to refresh the timer on MainWindow
     void nearZeroAlert(); // to make MainWindow visible
@@ -38,6 +40,9 @@ private slots:
     void nextSecond();
 private:
     timerState state = STATE_IDLE;
+    bool lockState = false;
+    bool isForceLock = true;
+    int forceLockCounter = 0;
 
     int currScnds = 0;
     int ctdnScnds = 40 * 60; // work for 40min

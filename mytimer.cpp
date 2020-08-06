@@ -19,7 +19,6 @@ void MyTimer::Lock()
 
 void MyTimer::nextSecond()
 {
-
     if(state == STATE_CTDN)
     {
         currScnds--;
@@ -34,14 +33,31 @@ void MyTimer::nextSecond()
     {
         currScnds--;
         if(currScnds <= 0)
-            setState(STATE_CTDN);
+        {
+            currScnds = 0;
+            if(lockState == false)
+                setState(STATE_CTDN);
+        }
         else if(currScnds == restScnds - 1)
             Lock();
+        else if(isForceLock)
+        {
+            // 3 seconds for quiting the app forcefully when in rest mode.
+            if(lockState)
+                forceLockCounter = 0;
+            else
+            {
+                forceLockCounter++;
+                if(forceLockCounter >= 3)
+                {
+                    Lock();
+                    forceLockCounter %= 3;
+                }
+            }
+        }
     }
     emit scndChanged(state, currScnds);
 }
-
-
 
 void MyTimer::setCtdnTime(int time)
 {
@@ -88,4 +104,14 @@ void MyTimer::enableTimer(bool st)
         this->start();
     else
         this->stop();
+}
+
+void MyTimer::onLockStateChanged(bool state)
+{
+    lockState = state;
+}
+
+void MyTimer::setForceLock(bool state)
+{
+    isForceLock = state;
 }
