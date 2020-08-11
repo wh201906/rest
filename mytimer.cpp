@@ -35,7 +35,7 @@ void MyTimer::nextSecond()
         if(currScnds <= 0)
         {
             currScnds = 0;
-            if(lockState == false)
+            if(!lockState)
                 setState(STATE_CTDN);
         }
         else if(currScnds == restScnds - 1)
@@ -54,6 +54,11 @@ void MyTimer::nextSecond()
                     forceLockCounter %= 3;
                 }
             }
+        }
+        else if(!isForceLock)
+        {
+            if(!lockState)
+                setState(STATE_CTDN);
         }
     }
     emit scndChanged(state, currScnds);
