@@ -20,6 +20,7 @@ SOURCES += \
     mainwindow.cpp \
     mysettings.cpp \
     mytimer.cpp \
+    reportwriter.cpp \
     settingdialog.cpp \
     singleinstance.cpp
 
@@ -27,6 +28,7 @@ HEADERS += \
     mainwindow.h \
     mysettings.h \
     mytimer.h \
+    reportwriter.h \
     settingdialog.h \
     singleinstance.h
 

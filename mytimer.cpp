@@ -21,7 +21,8 @@ void MyTimer::nextSecond()
 {
     if(state == STATE_CTDN)
     {
-        currScnds--;
+        if(!lockState)
+            currScnds--;
         if(currScnds <= 0)
             setState(STATE_REST);
         else if(currScnds == 30)
@@ -113,7 +114,9 @@ void MyTimer::enableTimer(bool st)
 
 void MyTimer::onLockStateChanged(bool state)
 {
+    QDateTime dateTime = QDateTime::currentDateTime();
     lockState = state;
+    emit writeMsg(dateTime.date().toString(Qt::ISODate) + "-" + dateTime.time().toString(Qt::ISODate) + ":" + (state ? "lock" : "unlock"));
 }
 
 void MyTimer::setForceLock(bool state)

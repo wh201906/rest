@@ -8,10 +8,13 @@
 #include <QTimer>
 #include <QThread>
 #include <QMenu>
+#include <QDateTime>
 #include <QDesktopServices>
+#include <QCloseEvent>
 #include "settingdialog.h"
 #include "mytimer.h"
 #include "mysettings.h"
+#include "reportwriter.h"
 #include "wtsapi32.h"
 
 QT_BEGIN_NAMESPACE
@@ -37,6 +40,9 @@ public slots:
     void onSettingChanged(MySettings::Items items);
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
 
+protected:
+    void closeEvent(QCloseEvent *event);
+
 private slots:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
@@ -56,6 +62,8 @@ private:
     QMenu *menu;
     QAction* myInfo;
     MyTimer* myTimer;
+    QThread* reportThread;
+    ReportWriter* report;
 
     QPoint startPos;
     QRect showRect;
@@ -80,5 +88,6 @@ signals:
     void restNow(MyTimer::timerState st = MyTimer::STATE_REST);
     void pause(bool st);
     void lockStateChanged(bool state);
+    void writeMsg(const QString& msg);
 };
 #endif // MAINWINDOW_H

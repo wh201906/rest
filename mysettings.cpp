@@ -6,6 +6,7 @@ MySettings::MySettings(const QString &fileName, QSettings::Format format, QObjec
     defaultSettings.insert("isSimple", false);
     defaultSettings.insert("isForceLock", true);
     defaultSettings.insert("hasTaskbarItem", true);
+    defaultSettings.insert("isRecordingUsage", true);
     defaultSettings.insert("Wh", 0);
     defaultSettings.insert("Wm", 40);
     defaultSettings.insert("Ws", 0);

@@ -7,6 +7,8 @@
 #include <QCursor>
 #include <QRect>
 #include <QDebug>
+#include <QMutex>
+#include <QDateTime>
 
 class MyTimer : public QTimer
 {
@@ -36,6 +38,7 @@ signals:
     void scndChanged(timerState st, int currScnds);// to refresh the timer on MainWindow
     void nearZeroAlert(); // to make MainWindow visible
     void newRound(); // to make MainWindow invisible
+    void writeMsg(const QString& msg);
 private slots:
     void nextSecond();
 private:

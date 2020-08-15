@@ -67,16 +67,33 @@ MainWindow::MainWindow(QWidget *parent)
     edgeDetect();
     hideWindow();// If the window is at the edge, then hide it.
 
+    QDateTime dateTime = QDateTime::currentDateTime();
+    reportThread = new QThread(this);
+    report = new ReportWriter(this);
+    report->setRecording(settings->value("isRecordingUsage").toBool());
+    report->setFileName("rest-" + dateTime.date().toString(Qt::ISODate) + ".log");
+    report->moveToThread(reportThread);
+    connect(myTimer, &MyTimer::writeMsg, report, &ReportWriter::write);
+    connect(this, &MainWindow::writeMsg, report, &ReportWriter::write);
+
     WTSRegisterSessionNotification((HWND)this->winId(), NOTIFY_FOR_ALL_SESSIONS);
+
+    emit writeMsg(dateTime.date().toString(Qt::ISODate) + "-" + dateTime.time().toString(Qt::ISODate) + ":start");
 }
 
 MainWindow::~MainWindow()
 {
-    WTSUnRegisterSessionNotification((HWND)this->winId());
     qDebug() << "MainWindow destroyed";
     delete ui;
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    WTSUnRegisterSessionNotification((HWND)this->winId());
+    QDateTime dateTime = QDateTime::currentDateTime();
+    emit writeMsg(dateTime.date().toString(Qt::ISODate) + "-" + dateTime.time().toString(Qt::ISODate) + ":stop");
+    event->accept();
+}
 
 void MainWindow::on_lockButton_clicked()
 {
@@ -169,7 +186,7 @@ void MainWindow::leaveEvent(QEvent *e)
 
 void MainWindow::on_closeButton_clicked()
 {
-    QApplication::exit();
+    close();
 }
 
 void MainWindow::on_pauseButton_clicked(bool checked)
