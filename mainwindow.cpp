@@ -187,6 +187,7 @@ void MainWindow::leaveEvent(QEvent *e)
 void MainWindow::on_closeButton_clicked()
 {
     close();
+    QApplication::exit();
 }
 
 void MainWindow::on_pauseButton_clicked(bool checked)
@@ -287,6 +288,7 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
     MSG* winMsg = static_cast<MSG *>(message);
     if(winMsg->message == WM_WTSSESSION_CHANGE)
     {
+        // when the computer is turned into sleep mode, it will receive the WTS_SESSION_LOCK too.
         if(winMsg->wParam == WTS_SESSION_LOCK)
         {
             emit lockStateChanged(true);
