@@ -24,6 +24,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, &MainWindow::pause, myTimer, &MyTimer::enableTimer);
     connect(this, &MainWindow::lockStateChanged, myTimer, &MyTimer::onLockStateChanged);
     onSettingChanged(settings->getCurrent());
+    QFont labelFont;
+    labelFont = ui->ctdnLabel->font();
+    labelFont.setPixelSize(15);
+    ui->ctdnLabel->setFont(labelFont);
+    ui->lockButton->setFont(labelFont);
+    ui->pauseButton->setFont(labelFont);
+    ui->skipButton->setFont(labelFont);
+    ui->closeButton->setFont(labelFont);
 
     myTimer->setState(MyTimer::STATE_CTDN);
 
@@ -313,7 +321,8 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
 //    else if(winMsg->message == WM_DISPLAYCHANGE) //
 //    {
 //        qDebug() << "WM_DISPLAYCHANGE";
-//        update();
+//        QApplication::processEvents();
+//        repaint();
 //    }
     return false;
 }
