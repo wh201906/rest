@@ -260,6 +260,11 @@ void MainWindow::nextSecond(MyTimer::timerState st, int currScnds)
                                .arg(currScnds / 60 % 60, 2, 10, QLatin1Char('0'))
                                .arg(currScnds % 60, 2, 10, QLatin1Char('0')));
     }
+    if(repaintFlag > 0)
+    {
+        adjustSize(); // update() and repaint() don't work there.
+        repaintFlag--;
+    }
 }
 
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
@@ -318,12 +323,11 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
         }
         qDebug() << "lockState:" << (winMsg->wParam == WTS_SESSION_LOCK);
     }
-//    else if(winMsg->message == WM_DISPLAYCHANGE) //
-//    {
-//        qDebug() << "WM_DISPLAYCHANGE";
-//        QApplication::processEvents();
-//        repaint();
-//    }
+    else if(winMsg->message == WM_DISPLAYCHANGE) //
+    {
+        qDebug() << "WM_DISPLAYCHANGE";
+        repaintFlag = 3; // call adjustSize() doesn't work there. and I repaint it multi times.
+    }
     return false;
 }
 

@@ -84,6 +84,7 @@ private:
     const int EDGESIZE = 3;
     QList<QRect> screenList;
     QAction* pauseAction;
+    int repaintFlag = 0;
 
     void edgeDetect();
 signals:
