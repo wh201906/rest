@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(myTimer, &MyTimer::nearZeroAlert, this, &MainWindow::showWindow);
     connect(myTimer, &MyTimer::newRound, this, &MainWindow::hideWindow);
     connect(this, &MainWindow::restNow, myTimer, &MyTimer::setState);
+    connect(this, &MainWindow::skip, myTimer, &MyTimer::setState);
     connect(this, &MainWindow::pause, myTimer, &MyTimer::enableTimer);
     connect(this, &MainWindow::lockStateChanged, myTimer, &MyTimer::onLockStateChanged);
     onSettingChanged(settings->getCurrent());
@@ -40,6 +41,10 @@ MainWindow::MainWindow(QWidget *parent)
     pauseAction = menu->addAction("Pause", [ = ]()
     {
         on_pauseButton_clicked(!(ui->pauseButton->isChecked()));
+    });
+    menu->addAction("Skip", [ = ]()
+    {
+        on_skipButton_clicked();
     });
     menu->addAction("Settings", [ = ]()
     {
@@ -267,14 +272,20 @@ void MainWindow::onSettingChanged(MySettings::Items items)
         ui->lockButton->setVisible(false);
         ui->pauseButton->setVisible(false);
         ui->closeButton->setVisible(false);
+        ui->skipButton->setVisible(false);
+        ui->ctdnLabel->adjustSize(); // Essential, otherwise the width of ctdnLabel will be unexpected.
         showRect.setWidth(5 * 2 + ui->ctdnLabel->width());
+        qDebug() << "width:" << showRect.width() << ui->ctdnLabel->width() << ui->lockButton->width() << ui->pauseButton->width() << ui->closeButton->width() << ui->skipButton->width();
     }
     else
     {
         ui->lockButton->setVisible(true);
         ui->pauseButton->setVisible(true);
         ui->closeButton->setVisible(true);
-        showRect.setWidth(5 * 5 + ui->ctdnLabel->width() + ui->lockButton->width() + ui->pauseButton->width() + ui->closeButton->width());
+        ui->skipButton->setVisible(true);
+        ui->ctdnLabel->adjustSize();
+        showRect.setWidth(5 * 6 + ui->ctdnLabel->width() + ui->lockButton->width() + ui->pauseButton->width() + ui->closeButton->width() + ui->skipButton->width());
+        qDebug() << "width:" << showRect.width() << ui->ctdnLabel->width() << ui->lockButton->width() << ui->pauseButton->width() << ui->closeButton->width() << ui->skipButton->width();
     }
     myTimer->setCtdnTime(items["Wh"].toInt() * 3600 + items["Wm"].toInt() * 60 + items["Ws"].toInt());
     myTimer->setRestTime(items["Rh"].toInt() * 3600 + items["Rm"].toInt() * 60 + items["Rs"].toInt());
@@ -305,4 +316,9 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
 //        update();
 //    }
     return false;
+}
+
+void MainWindow::on_skipButton_clicked()
+{
+    emit skip();
 }

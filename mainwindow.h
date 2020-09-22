@@ -57,6 +57,8 @@ private slots:
     void enterSettings();
     void contextMenuEvent(QContextMenuEvent *event);
 
+    void on_skipButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QMenu *menu;
@@ -86,6 +88,7 @@ private:
     void edgeDetect();
 signals:
     void restNow(MyTimer::timerState st = MyTimer::STATE_REST);
+    void skip(MyTimer::timerState st = MyTimer::STATE_CTDN);
     void pause(bool st);
     void lockStateChanged(bool state);
     void writeMsg(const QString& msg);
