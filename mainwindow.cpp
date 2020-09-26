@@ -333,5 +333,8 @@ bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *r
 
 void MainWindow::on_skipButton_clicked()
 {
+    pauseAction->setText("Pause");
+    ui->pauseButton->setChecked(false);
+    ui->lockButton->setEnabled(true);
     emit skip();
 }
