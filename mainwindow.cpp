@@ -110,6 +110,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_lockButton_clicked()
 {
+    pauseAction->setText("Pause");
+    ui->pauseButton->setChecked(false);
+    ui->lockButton->setEnabled(true);
     emit restNow();
     QThread::msleep(1000);
     MyTimer::Lock();
